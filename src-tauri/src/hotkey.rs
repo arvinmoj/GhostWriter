@@ -42,6 +42,49 @@ pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
 
 fn process_text() -> Result<(), String> {
     log::info!("Hotkey triggered, starting text capture");
+
+    simulate_copy()?;
+
+    std::thread::sleep(std::time::Duration::from_millis(100));
+
+    let original_text = crate::clipboard::read_clipboard()
+        .map_err(|e| format!("Clipboard error: {}", e))?;
+
+    if original_text.trim().is_empty() {
+        log::warn!("No text selected, skipping processing");
+        return Ok(());
+    }
+
+    log::info!("Captured text ({} chars)", original_text.len());
+
+    let settings = crate::config::load_settings()
+        .map_err(|e| format!("Config error: {}", e))?;
+
+    let instruction = crate::instructions::load_instruction(&settings.instruction_file)
+        .unwrap_or_else(|_| crate::instructions::default_instruction());
+
+    let api_key = crate::config::decrypt_api_key(&settings.api_key_encrypted)
+        .map_err(|e| format!("Config error: {}", e))?;
+
+    let client = crate::api::OpenRouterClient::new(api_key, settings.model);
+
+    let refined = std::thread::spawn(move || {
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.block_on(client.refine_text(&instruction, &original_text))
+    }).join()
+        .map_err(|e| format!("Thread error: {:?}", e))?
+        .map_err(|e| format!("API error: {}", e))?;
+
+    log::info!("API returned refined text ({} chars)", refined.len());
+
+    crate::clipboard::write_clipboard(&refined)
+        .map_err(|e| format!("Clipboard error: {}", e))?;
+
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    simulate_paste()?;
+
+    log::info!("Text replacement complete");
     Ok(())
 }
 
