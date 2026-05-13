@@ -63,10 +63,12 @@ fn process_text() -> Result<(), String> {
     let instruction = crate::instructions::load_instruction(&settings.instruction_file)
         .unwrap_or_else(|_| crate::instructions::default_instruction());
 
+    let model = settings.model.clone();
+    let proxy_url = settings.proxy_url.clone();
     let api_key = crate::config::decrypt_api_key(&settings.api_key_encrypted)
         .map_err(|e| format!("Config error: {}", e))?;
 
-    let client = crate::api::OpenRouterClient::new(api_key, settings.model);
+    let client = crate::api::OpenRouterClient::new(api_key, model, proxy_url);
 
     let refined = std::thread::spawn(move || {
         let rt = tokio::runtime::Runtime::new().unwrap();

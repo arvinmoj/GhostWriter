@@ -40,9 +40,23 @@ pub struct OpenRouterClient {
 }
 
 impl OpenRouterClient {
-    pub fn new(api_key: String, model: String) -> Self {
-        let client = Client::builder()
-            .timeout(Duration::from_secs(120))
+    pub fn new(api_key: String, model: String, proxy_url: Option<String>) -> Self {
+        let mut builder = Client::builder()
+            .timeout(Duration::from_secs(120));
+
+        if let Some(ref proxy_str) = proxy_url {
+            match reqwest::Proxy::all(proxy_str) {
+                Ok(proxy) => {
+                    builder = builder.proxy(proxy);
+                    log::info!("Using proxy: {}", proxy_str);
+                }
+                Err(e) => {
+                    log::warn!("Invalid proxy URL '{}': {}, ignoring", proxy_str, e);
+                }
+            }
+        }
+
+        let client = builder
             .build()
             .expect("Failed to create HTTP client");
 

@@ -38,6 +38,7 @@ pub struct Settings {
     pub model: String,
     pub instruction_file: PathBuf,
     pub hotkey: HotkeyConfig,
+    pub proxy_url: Option<String>,
     pub first_run: bool,
 }
 
@@ -48,6 +49,7 @@ impl Default for Settings {
             model: "openai/gpt-4o-mini".to_string(),
             instruction_file: default_instruction_path(),
             hotkey: HotkeyConfig::default(),
+            proxy_url: None,
             first_run: true,
         }
     }
