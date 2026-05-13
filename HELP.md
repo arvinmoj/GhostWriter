@@ -126,3 +126,20 @@ To change the hotkey, edit your config file:
 ```
 Valid modifier keys: `cmd`, `ctrl`, `alt`, `option`, `shift`
 Valid key: any single letter or number (a-z, 0-9)
+
+## Troubleshooting
+
+### App quit unexpectedly on macOS
+This usually means missing accessibility permissions:
+1. Go to **System Settings → Privacy & Security → Accessibility**
+2. Find GhostWriter in the list and enable it
+3. You may also need to enable **Input Monitoring**
+4. Restart GhostWriter
+
+### No text transformation happening
+Check these:
+1. Is GhostWriter running? (Look for the icon in your menu bar)
+2. Did you press the correct hotkey?
+3. Is text actually selected when you press the hotkey?
+4. Do you have an internet connection? (Required for API calls)
+5. Check the app logs: Run GhostWriter from Terminal to see output
