@@ -36,6 +36,7 @@ cat > ~/.config/ghostwriter/config.json << EOF
     "modifiers": ["cmd"],
     "key": "r"
   },
+  "proxy_url": null,
   "first_run": false
 }
 EOF
@@ -197,6 +198,20 @@ Popular options:
 - `openai/gpt-4o-mini` (fast & cheap, default)
 - `anthropic/claude-3.5-sonnet` (excellent for writing)
 - `meta-llama/llama-3.1-70b-instruct` (open source option)
+
+### Proxy Configuration
+GhostWriter can route OpenRouter API requests through an HTTP or SOCKS proxy. Set the `proxy_url` field in your config:
+```json
+{
+  "proxy_url": "http://127.0.0.1:8080"
+}
+```
+Supported protocols:
+- `http://` - HTTP proxy
+- `https://` - HTTPS proxy
+- `socks5://` - SOCKS5 proxy
+
+Omit or set to `null` to connect directly without a proxy.
 
 ## Frequently Asked Questions
 
