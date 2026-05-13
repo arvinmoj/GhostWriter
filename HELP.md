@@ -197,3 +197,33 @@ Popular options:
 - `openai/gpt-4o-mini` (fast & cheap, default)
 - `anthropic/claude-3.5-sonnet` (excellent for writing)
 - `meta-llama/llama-3.1-70b-instruct` (open source option)
+
+## Frequently Asked Questions
+
+**Q: Does GhostWriter work offline?**
+A: No, it requires an internet connection to reach the OpenRouter API.
+
+**Q: Is there a usage cost?**
+A: Yes, you pay OpenRouter for API usage based on the model and tokens used. Check openrouter.ai for pricing.
+
+**Q: Can I use local models instead?**
+A: Not in this version - it requires an API connection to OpenRouter.
+
+**Q: What happens if I select a lot of text?**
+A: There's a practical limit based on the model's context window (typically 8K-32K tokens). Very large selections may be truncated.
+
+**Q: Does it work in password fields or secure inputs?**
+A: No, for security reasons it cannot access text in secure input fields.
+
+**Q: How do I quit GhostWriter?**
+A: Right-click the menu bar icon and select "Quit", or run `pkill -f ghostwriter` in Terminal.
+
+## Getting Help
+
+If you encounter issues:
+1. Check the troubleshooting section above
+2. Run GhostWriter from Terminal to see error output
+3. Visit the GitHub repository: https://github.com/arvinmoj/GhostWriter
+4. Ensure you have the latest version
+
+Happy writing!
