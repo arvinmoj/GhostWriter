@@ -132,3 +132,11 @@ npm run tauri build
 
 The compiled binary will be in `src-tauri/target/release/`.
 </details>
+
+## Contributing
+
+Contributions are welcome! Please open an [issue](https://github.com/arvinmoj/GhostWriter/issues) or submit a PR.
+
+## License
+
+[MIT](LICENSE) (c) Arvin
