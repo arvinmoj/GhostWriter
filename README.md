@@ -63,3 +63,9 @@ That's it. No switching windows. No copy-paste. No interruption.
 1. Download the latest `.msi` from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
 2. Run the installer
 3. Launch GhostWriter -- it lives in your system tray
+
+### Linux
+
+1. Download the latest `.AppImage` from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
+2. `chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage`
+3. It will run in your system tray
