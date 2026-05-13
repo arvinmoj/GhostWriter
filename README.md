@@ -69,3 +69,20 @@ That's it. No switching windows. No copy-paste. No interruption.
 1. Download the latest `.AppImage` from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
 2. `chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage`
 3. It will run in your system tray
+
+## Setup
+
+1. **Create an instruction file** -- for example, `~/ghost-instructions.md`:
+   ```markdown
+   Fix grammar and spelling mistakes. Improve clarity. Keep the original tone.
+   ```
+
+2. **Get an API key** -- sign up at [OpenRouter.ai](https://openrouter.ai) (one key gives you access to GPT-4, Claude, Llama, and more)
+
+3. **Configure** -- on first launch, GhostWriter will ask for:
+   - Your API key (stored encrypted)
+   - Path to your instruction file
+   - Preferred model
+   - Hotkey combination
+
+4. **Go** -- highlight text in any app and press your hotkey
