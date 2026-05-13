@@ -39,3 +39,82 @@ pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
 
     Ok(())
 }
+
+fn process_text() -> Result<(), String> {
+    log::info!("Hotkey triggered, starting text capture");
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn simulate_copy() -> Result<(), String> {
+    use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
+
+    let mut enigo = Enigo::new(&EnigoSettings::default())
+        .map_err(|e| format!("Enigo error: {}", e))?;
+
+    enigo.key(Key::Meta, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('a'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('a'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Meta, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    enigo.key(Key::Meta, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('c'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('c'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Meta, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn simulate_copy() -> Result<(), String> {
+    use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
+
+    let mut enigo = Enigo::new(&EnigoSettings::default())
+        .map_err(|e| format!("Enigo error: {}", e))?;
+
+    enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('a'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('a'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('c'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('c'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn simulate_paste() -> Result<(), String> {
+    use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
+
+    let mut enigo = Enigo::new(&EnigoSettings::default())
+        .map_err(|e| format!("Enigo error: {}", e))?;
+
+    enigo.key(Key::Meta, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('v'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('v'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Meta, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn simulate_paste() -> Result<(), String> {
+    use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
+
+    let mut enigo = Enigo::new(&EnigoSettings::default())
+        .map_err(|e| format!("Enigo error: {}", e))?;
+
+    enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('v'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Unicode('v'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+
+    Ok(())
+}
