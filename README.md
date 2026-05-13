@@ -12,6 +12,12 @@
 
 </div>
 
+## What is GhostWriter?
+
+GhostWriter is a **background utility** that lets you refine, rewrite, or translate text **anywhere** on your computer -- emails, code editors, chat apps, forms, documents -- without ever leaving the app you're working in.
+
+Highlight text, press a hotkey, and AI-powered instructions transform it on the spot.
+
 ## How It Works
 
 | Step | Action |
