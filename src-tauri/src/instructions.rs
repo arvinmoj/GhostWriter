@@ -34,3 +34,47 @@ pub fn ensure_default_instruction(config_dir: &std::path::Path) -> Result<std::p
 
     Ok(default_path)
 }
+
+pub fn create_sample_instructions(config_dir: &std::path::Path) -> Result<(), InstructionError> {
+    let instructions_dir = config_dir.join("instructions");
+    fs::create_dir_all(&instructions_dir)?;
+
+    let grammar_path = instructions_dir.join("grammar.md");
+    if !grammar_path.exists() {
+        fs::write(&grammar_path, r#"You are a professional editor. Correct all grammar,
+spelling, and punctuation errors. Preserve the original tone and style.
+Do not add or remove information."#)?;
+    }
+
+    let translate_path = instructions_dir.join("translate_to_french.md");
+    if !translate_path.exists() {
+        fs::write(&translate_path, r#"Translate the following text to French.
+Keep technical terms and proper nouns in their original English form.
+Maintain the original tone and formatting."#)?;
+    }
+
+    let friendly_path = instructions_dir.join("friendly.md");
+    if !friendly_path.exists() {
+        fs::write(&friendly_path, r#"Rewrite the following text in a warm, friendly,
+and conversational tone. Make it feel natural and approachable while
+preserving the core message."#)?;
+    }
+
+    let concise_path = instructions_dir.join("concise.md");
+    if !concise_path.exists() {
+        fs::write(&concise_path, r#"Shorten the following text to half its length
+without losing the essential information. Be direct and concise."#)?;
+    }
+
+    Ok(())
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum InstructionError {
+    #[error("IO error: {0}")]
+    IoError(#[from] std::io::Error),
+    #[error("Instruction file not found: {0}")]
+    FileNotFound(String),
+    #[error("Instruction file is empty: {0}")]
+    EmptyFile(String),
+}
