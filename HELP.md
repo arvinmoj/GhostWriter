@@ -143,3 +143,14 @@ Check these:
 3. Is text actually selected when you press the hotkey?
 4. Do you have an internet connection? (Required for API calls)
 5. Check the app logs: Run GhostWriter from Terminal to see output
+
+### API Key Issues
+- Verify your OpenRouter API key is correct
+- Check you have credits in your OpenRouter account
+- The key is stored encrypted in `~/.config/ghostwriter/config.json`
+- To reset: delete the config file and restart the app
+
+### Performance
+- First request may be slower (API initialization)
+- Subsequent requests are faster
+- Typical response time: 1-3 seconds depending on model and text length
