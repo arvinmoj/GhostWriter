@@ -154,3 +154,22 @@ Check these:
 - First request may be slower (API initialization)
 - Subsequent requests are faster
 - Typical response time: 1-3 seconds depending on model and text length
+
+## Privacy & Security
+
+- **Your API key stays local**: Encrypted and stored only on your machine
+- **No data collection**: GhostWriter doesn't track usage or collect analytics
+- **OpenRouter only**: Text is sent only to OpenRouter (you control which models)
+- **No logging**: Your text and API key are never logged or stored beyond memory
+- **Open source**: Inspect the code at https://github.com/arvinmoj/GhostWriter
+
+## File Locations
+
+### Configuration
+- **Config file**: `~/.config/ghostwriter/config.json`
+- **Instructions directory**: `~/.config/ghostwriter/instructions/`
+- **Default instruction**: `~/.config/ghostwriter/instructions/default.md`
+
+### Application
+- **Binary**: `/Applications/GhostWriter.app/Contents/MacOS/ghostwriter` (if installed via DMG)
+- **Logs**: Run from Terminal to see real-time output
