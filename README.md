@@ -86,3 +86,21 @@ That's it. No switching windows. No copy-paste. No interruption.
    - Hotkey combination
 
 4. **Go** -- highlight text in any app and press your hotkey
+
+## Instruction Files (The "Engine")
+
+Your instruction file is a plain Markdown (`.md`) file that tells the AI **how** to process your text. You can create as many as you want and switch between them.
+
+**Example -- `grammar.md`:**
+```markdown
+You are a professional editor. Correct grammar, spelling, and punctuation.
+Preserve the original tone and style. Do not add or remove information.
+```
+
+**Example -- `code-review.md`:**
+```markdown
+You are a senior software engineer. Review the code for bugs, performance
+issues, and security vulnerabilities. Suggest improvements concisely.
+```
+
+> **Pro tip:** Keep multiple instruction files handy and rename the active one, or configure quick-switching in settings.
