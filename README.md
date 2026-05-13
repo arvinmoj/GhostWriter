@@ -111,3 +111,24 @@ issues, and security vulnerabilities. Suggest improvements concisely.
 - API keys are stored **encrypted** on your local machine
 - GhostWriter collects **no telemetry, no analytics, no usage data**
 - The entire codebase is open source and auditable
+
+## For Developers
+
+<details>
+<summary>Building from Source</summary>
+
+### Prerequisites
+- [Rust](https://rustup.rs)
+- [Node.js](https://nodejs.org) (v18+)
+- Platform-specific dependencies (see [Tauri docs](https://v2.tauri.app/start/prerequisites/))
+
+### Build
+```bash
+git clone https://github.com/arvinmoj/GhostWriter.git
+cd GhostWriter
+npm install
+npm run tauri build
+```
+
+The compiled binary will be in `src-tauri/target/release/`.
+</details>
