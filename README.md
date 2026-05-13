@@ -104,3 +104,10 @@ issues, and security vulnerabilities. Suggest improvements concisely.
 ```
 
 > **Pro tip:** Keep multiple instruction files handy and rename the active one, or configure quick-switching in settings.
+
+## Security & Privacy
+
+- All AI processing uses **your own API key** -- nothing is proxied through our servers
+- API keys are stored **encrypted** on your local machine
+- GhostWriter collects **no telemetry, no analytics, no usage data**
+- The entire codebase is open source and auditable
