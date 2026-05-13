@@ -42,3 +42,25 @@ fn decrypt_api_key(encrypted: &str) -> Result<String, Box<dyn std::error::Error>
         Err("Invalid encrypted key format".into())
     }
 }
+
+fn main() {
+    let api_key = "YOUR_API_KEY_HERE";
+    match encrypt_api_key(api_key) {
+        Ok(encrypted) => {
+            println!("Encrypted: {}", encrypted);
+
+            match decrypt_api_key(&encrypted) {
+                Ok(decrypted) => {
+                    println!("Decrypted: {}", decrypted);
+                    println!("Match: {}", decrypted == api_key);
+                }
+                Err(e) => eprintln!("Decryption error: {}", e),
+            }
+        }
+        Err(e) => eprintln!("Encryption error: {}", e),
+    }
+
+    let machine_key = get_machine_key();
+    println!("Machine key: {:?}", machine_key);
+    println!("Machine key as string: {}", String::from_utf8_lossy(&machine_key));
+}
