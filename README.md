@@ -57,3 +57,9 @@ That's it. No switching windows. No copy-paste. No interruption.
 2. Drag GhostWriter to Applications
 3. Open **System Settings -> Privacy & Security -> Accessibility** and grant permission
 4. Launch GhostWriter -- it lives in your menu bar
+
+### Windows
+
+1. Download the latest `.msi` from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
+2. Run the installer
+3. Launch GhostWriter -- it lives in your system tray
