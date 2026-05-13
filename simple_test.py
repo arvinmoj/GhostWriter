@@ -28,3 +28,23 @@ def decrypt_api_key(encrypted_b64):
         return decrypted.decode('utf-8')
     else:
         raise ValueError("Invalid encrypted key format")
+
+if __name__ == "__main__":
+    api_key = "YOUR_API_KEY_HERE"
+    print(f"API key: {api_key}")
+    print(f"Hostname: {socket.gethostname()}")
+
+    encrypted = encrypt_api_key(api_key)
+    print(f"Encrypted: {encrypted}")
+
+    decrypted = decrypt_api_key(encrypted)
+    print(f"Decrypted: {decrypted}")
+    print(f"Match: {decrypted == api_key}")
+
+    config_encrypted = "R0hPU1RXUklURVJfVjEeCk4NHUIdH0FeAVkNX1dQUlpYCB4KXQcEXwxZBlFdX10dCF9RAllUBVBVXA0ISgkLVFYPVQUHAwpeDUtZDQZZDQlZU1ELWVxP"
+    print(f"\nConfig encrypted: {config_encrypted}")
+    try:
+        decrypted_from_config = decrypt_api_key(config_encrypted)
+        print(f"Decrypted from config: {decrypted_from_config}")
+    except Exception as e:
+        print(f"Error decrypting config key: {e}")
