@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "GhostWriter",
+  "identifier": "com.ghostwriter.app",
+  "version": "0.1.0",
+  "build": {
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "GhostWriter",
+        "label": "main",
+        "visible": false,
+        "decorations": false,
+        "skipTaskbar": true,
+        "width": 0,
+        "height": 0,
+        "resizable": false,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "trayIcon": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png"
+    ],
+    "category": "Utility",
+    "shortDescription": "Universal AI Text Refiner",
+    "longDescription": "GhostWriter is a cross-platform background utility that lets you refine, rewrite, or translate text anywhere on your computer using a global hotkey and AI.",
+    "macOS": {
+      "minimumSystemVersion": "10.13",
+      "entitlements": "entitlements/ghostwriter.entitlements"
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    },
+    "linux": {
+      "appimage": {
+        "bundleMediaFramework": false
+      }
+    }
+  }
+}
