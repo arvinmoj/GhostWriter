@@ -39,3 +39,12 @@ That's it. No switching windows. No copy-paste. No interruption.
 | **Zero UI** | All interaction happens through keyboard shortcuts |
 | **Privacy-First** | Your API key stays encrypted locally. No data stored. |
 | **Lightweight** | Built with Tauri + Rust -- small footprint, low memory usage |
+
+### Example Instruction Files
+
+| File | What it does |
+|------|-------------|
+| `grammar.md` | "Fix grammar and spelling while preserving tone." |
+| `translate.md` | "Translate this to French. Keep technical terms in English." |
+| `friendly.md` | "Rewrite this in a warm, conversational tone." |
+| `concise.md` | "Shorten this to half the length without losing key points." |
