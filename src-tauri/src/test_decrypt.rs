@@ -28,3 +28,34 @@ fn decrypt_api_key(encrypted: &str) -> Result<String, Box<dyn std::error::Error>
         Err("Invalid encrypted key format".into())
     }
 }
+
+fn main() {
+    let encrypted = "R0hPU1RXUklURVJfVjEeCk4NHUIdH0FeAVkNX1dQUlpYCB4KXQcEXwxZBlFdX10dCF9RAllUBVBVXA0ISgkLVFYPVQUHAwpeDUtZDQZZDQlZU1ELWVxP";
+    println!("Trying to decrypt: {}", encrypted);
+
+    match decrypt_api_key(encrypted) {
+        Ok(decrypted) => {
+            println!("SUCCESS: Decrypted to: {}", decrypted);
+        }
+        Err(e) => {
+            println!("ERROR: {}", e);
+        }
+    }
+
+    println!("\nDebug info:");
+    let machine_key = get_machine_key();
+    println!("Machine key: {:?}", machine_key);
+    println!("Machine key as string: {}", String::from_utf8_lossy(&machine_key));
+
+    let data = BASE64.decode(encrypted).unwrap();
+    println!("Decoded data length: {}", data.len());
+    println!("First 20 bytes: {:?}", &data[..20.min(data.len())]);
+    println!("Magic bytes: {:?}", ENCRYPTION_MAGIC);
+    println!("Starts with magic: {}", data.starts_with(ENCRYPTION_MAGIC));
+
+    if data.starts_with(ENCRYPTION_MAGIC) {
+        let encrypted_bytes = &data[ENCRYPTION_MAGIC.len()..];
+        println!("Encrypted bytes length: {}", encrypted_bytes.len());
+        println!("First 10 encrypted bytes: {:?}", &encrypted_bytes[..10.min(encrypted_bytes.len())]);
+    }
+}
