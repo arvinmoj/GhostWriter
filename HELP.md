@@ -173,3 +173,27 @@ Check these:
 ### Application
 - **Binary**: `/Applications/GhostWriter.app/Contents/MacOS/ghostwriter` (if installed via DMG)
 - **Logs**: Run from Terminal to see real-time output
+
+## Advanced Usage
+
+### Reloading Configuration
+GhostWriter automatically watches for changes to:
+- Config file
+- Instruction file
+No restart needed when you edit these files.
+
+### Multiple Instruction Files
+Create multiple `.md` files and switch between them by updating the `instruction_file` path in your config.
+
+### Custom Models
+Change the model in your config:
+```json
+{
+  "model": "anthropic/claude-3.5-sonnet"
+}
+```
+Popular options:
+- `openai/gpt-4o` (most capable)
+- `openai/gpt-4o-mini` (fast & cheap, default)
+- `anthropic/claude-3.5-sonnet` (excellent for writing)
+- `meta-llama/llama-3.1-70b-instruct` (open source option)
