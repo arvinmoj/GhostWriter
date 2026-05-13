@@ -39,6 +39,7 @@ That's it. No switching windows. No copy-paste. No interruption.
 | **Zero UI** | All interaction happens through keyboard shortcuts |
 | **Privacy-First** | Your API key stays encrypted locally. No data stored. |
 | **Lightweight** | Built with Tauri + Rust -- small footprint, low memory usage |
+| **Proxy Support** | Route API calls through HTTP or SOCKS proxies |
 
 ### Example Instruction Files
 
@@ -84,6 +85,7 @@ That's it. No switching windows. No copy-paste. No interruption.
    - Path to your instruction file
    - Preferred model
    - Hotkey combination
+   - Proxy URL (optional -- for HTTP or SOCKS proxies)
 
 4. **Go** -- highlight text in any app and press your hotkey
 
@@ -104,6 +106,23 @@ issues, and security vulnerabilities. Suggest improvements concisely.
 ```
 
 > **Pro tip:** Keep multiple instruction files handy and rename the active one, or configure quick-switching in settings.
+
+## Advanced Configuration
+
+### Proxy Support
+GhostWriter supports routing API requests through an HTTP or SOCKS proxy. Set the `proxy_url` field in your config:
+```json
+{
+  "proxy_url": "http://127.0.0.1:8080"
+}
+```
+Or for a SOCKS5 proxy:
+```json
+{
+  "proxy_url": "socks5://127.0.0.1:1080"
+}
+```
+Leave the field empty or omit it to connect directly.
 
 ## Security & Privacy
 
