@@ -96,3 +96,33 @@ To use a custom instruction file, update your config:
   "instruction_file": "/Users/yourname/.config/ghostwriter/instructions/grammar.md"
 }
 ```
+
+## Step 4: Using the Hotkey
+
+### Default Hotkey
+- **macOS**: `Cmd + Shift + R`
+- **Windows/Linux**: `Ctrl + Shift + R`
+
+### Usage Flow
+1. Select text in any application (Notes, Word, Slack, IDE, browser, etc.)
+2. Press the hotkey
+3. GhostWriter will:
+   - Simulate `Cmd+A`/`Ctrl+A` (Select All)
+   - Simulate `Cmd+C`/`Ctrl+C` (Copy)
+   - Send your text + instruction to OpenRouter AI
+   - Wait for the AI response
+   - Simulate `Cmd+V`/`Ctrl+V` (Paste) to replace original text
+4. The transformed text appears instantly!
+
+### Hotkey Customization
+To change the hotkey, edit your config file:
+```json
+{
+  "hotkey": {
+    "modifiers": ["cmd", "option"],
+    "key": "t"
+  }
+}
+```
+Valid modifier keys: `cmd`, `ctrl`, `alt`, `option`, `shift`
+Valid key: any single letter or number (a-z, 0-9)
