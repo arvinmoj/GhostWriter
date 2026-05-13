@@ -28,3 +28,14 @@ Highlight text, press a hotkey, and AI-powered instructions transform it on the 
 | **4** | The refined text replaces your original selection -- instantly |
 
 That's it. No switching windows. No copy-paste. No interruption.
+
+## Features
+
+| Feature | Description |
+|---------|-------------|
+| **System-Wide** | Works in every text field across your OS |
+| **Custom Instructions** | Drop a `.md` file with your prompt -- switch modes by swapping files |
+| **Multi-Model** | Powered by OpenRouter -- use GPT-4, Claude, Llama, and more |
+| **Zero UI** | All interaction happens through keyboard shortcuts |
+| **Privacy-First** | Your API key stays encrypted locally. No data stored. |
+| **Lightweight** | Built with Tauri + Rust -- small footprint, low memory usage |
