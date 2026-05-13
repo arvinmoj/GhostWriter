@@ -48,3 +48,12 @@ That's it. No switching windows. No copy-paste. No interruption.
 | `translate.md` | "Translate this to French. Keep technical terms in English." |
 | `friendly.md` | "Rewrite this in a warm, conversational tone." |
 | `concise.md` | "Shorten this to half the length without losing key points." |
+
+## Installation
+
+### macOS
+
+1. Download the latest `.dmg` from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
+2. Drag GhostWriter to Applications
+3. Open **System Settings -> Privacy & Security -> Accessibility** and grant permission
+4. Launch GhostWriter -- it lives in your menu bar
