@@ -41,50 +41,66 @@ pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
 }
 
 fn process_text() -> Result<(), String> {
-    log::info!("Hotkey triggered, starting text capture");
+    log::info!("[STEP 1] Hotkey triggered, starting text capture");
 
     simulate_copy()?;
+    log::info!("[STEP 2] Copy simulated successfully");
 
     std::thread::sleep(std::time::Duration::from_millis(100));
 
     let original_text = crate::clipboard::read_clipboard()
-        .map_err(|e| format!("Clipboard error: {}", e))?;
+        .map_err(|e| { log::error!("[STEP 3 FAIL] {}", e); format!("Clipboard error: {}", e) })?;
+    log::info!("[STEP 3] Clipboard read: {} chars", original_text.len());
 
     if original_text.trim().is_empty() {
         log::warn!("No text selected, skipping processing");
         return Ok(());
     }
 
-    log::info!("Captured text ({} chars)", original_text.len());
-
+    log::info!("[STEP 4] Loading settings...");
     let settings = crate::config::load_settings()
-        .map_err(|e| format!("Config error: {}", e))?;
+        .map_err(|e| { log::error!("[STEP 4 FAIL] {}", e); format!("Config error: {}", e) })?;
+    log::info!("[STEP 4] Settings loaded: model={}", settings.model);
 
+    log::info!("[STEP 5] Loading instruction file...");
     let instruction = crate::instructions::load_instruction(&settings.instruction_file)
         .unwrap_or_else(|_| crate::instructions::default_instruction());
+    log::info!("[STEP 5] Instruction loaded ({} chars)", instruction.len());
+
+    log::info!("[STEP 6] Decrypting API key...");
+    let api_key = crate::config::decrypt_api_key(&settings.api_key_encrypted)
+        .map_err(|e| { log::error!("[STEP 6 FAIL] {}", e); format!("Config error: {}", e) })?;
+    log::info!("[STEP 6] API key decrypted");
 
     let model = settings.model.clone();
     let proxy_url = settings.proxy_url.clone();
-    let api_key = crate::config::decrypt_api_key(&settings.api_key_encrypted)
-        .map_err(|e| format!("Config error: {}", e))?;
 
-    let client = crate::api::OpenRouterClient::new(api_key, model, proxy_url);
+    log::info!("[STEP 7] Creating API client...");
+    let client = crate::api::OpenRouterClient::new(api_key, model, proxy_url)
+        .map_err(|e| { log::error!("[STEP 7 FAIL] {}", e); format!("API client error: {}", e) })?;
+    log::info!("[STEP 7] API client created");
 
+    log::info!("[STEP 8] Calling LLM API...");
     let refined = std::thread::spawn(move || {
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        rt.block_on(client.refine_text(&instruction, &original_text))
+        match tokio::runtime::Runtime::new() {
+            Ok(rt) => rt.block_on(client.refine_text(&instruction, &original_text)),
+            Err(e) => Err(format!("Failed to create async runtime: {}", e)),
+        }
     }).join()
-        .map_err(|e| format!("Thread error: {:?}", e))?
-        .map_err(|e| format!("API error: {}", e))?;
+        .unwrap_or_else(|_| Err("Thread panicked".to_string()))
+        .map_err(|e| { log::error!("[STEP 8 FAIL] {}", e); format!("API error: {}", e) })?;
+    log::info!("[STEP 8] API returned refined text ({} chars)", refined.len());
 
-    log::info!("API returned refined text ({} chars)", refined.len());
-
+    log::info!("[STEP 9] Writing to clipboard...");
     crate::clipboard::write_clipboard(&refined)
-        .map_err(|e| format!("Clipboard error: {}", e))?;
+        .map_err(|e| { log::error!("[STEP 9 FAIL] {}", e); format!("Clipboard error: {}", e) })?;
+    log::info!("[STEP 9] Clipboard write complete");
 
     std::thread::sleep(std::time::Duration::from_millis(50));
 
-    simulate_paste()?;
+    log::info!("[STEP 10] Simulating paste...");
+    simulate_paste().map_err(|e| { log::error!("[STEP 10 FAIL] {}", e); e })?;
+    log::info!("[STEP 10] Paste simulated");
 
     log::info!("Text replacement complete");
     Ok(())
@@ -92,22 +108,63 @@ fn process_text() -> Result<(), String> {
 
 #[cfg(target_os = "macos")]
 fn simulate_copy() -> Result<(), String> {
-    use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
+    use core_graphics::event::{CGEvent, CGEventTapLocation};
+    use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
 
-    let mut enigo = Enigo::new(&EnigoSettings::default())
-        .map_err(|e| format!("Enigo error: {}", e))?;
+    let source = CGEventSource::new(CGEventSourceStateID::HIDSystemState)
+        .map_err(|e| format!("Failed to create event source: {:?}", e))?;
 
-    enigo.key(Key::Meta, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('a'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('a'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Meta, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    // Select All: Cmd+A (keycode 0 = A, Cmd = flag)
+    let cmd_down = CGEvent::new_keyboard_event(source.clone(), 0, true)
+        .map_err(|e| format!("Failed to create Cmd+A down: {:?}", e))?;
+    cmd_down.set_flags(core_graphics::event::CGEventFlags::CGEventFlagCommand);
+    cmd_down.post(CGEventTapLocation::HID);
 
     std::thread::sleep(std::time::Duration::from_millis(50));
 
-    enigo.key(Key::Meta, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('c'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('c'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Meta, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    let cmd_up = CGEvent::new_keyboard_event(source.clone(), 0, false)
+        .map_err(|e| format!("Failed to create Cmd+A up: {:?}", e))?;
+    cmd_up.set_flags(core_graphics::event::CGEventFlags::CGEventFlagCommand);
+    cmd_up.post(CGEventTapLocation::HID);
+
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    // Copy: Cmd+C (keycode 8 = C)
+    let cmd_down = CGEvent::new_keyboard_event(source.clone(), 8, true)
+        .map_err(|e| format!("Failed to create Cmd+C down: {:?}", e))?;
+    cmd_down.set_flags(core_graphics::event::CGEventFlags::CGEventFlagCommand);
+    cmd_down.post(CGEventTapLocation::HID);
+
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    let cmd_up = CGEvent::new_keyboard_event(source.clone(), 8, false)
+        .map_err(|e| format!("Failed to create Cmd+C up: {:?}", e))?;
+    cmd_up.set_flags(core_graphics::event::CGEventFlags::CGEventFlagCommand);
+    cmd_up.post(CGEventTapLocation::HID);
+
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
+fn simulate_paste() -> Result<(), String> {
+    use core_graphics::event::{CGEvent, CGEventTapLocation};
+    use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
+
+    let source = CGEventSource::new(CGEventSourceStateID::HIDSystemState)
+        .map_err(|e| format!("Failed to create event source: {:?}", e))?;
+
+    // Paste: Cmd+V (keycode 9 = V)
+    let cmd_down = CGEvent::new_keyboard_event(source.clone(), 9, true)
+        .map_err(|e| format!("Failed to create Cmd+V down: {:?}", e))?;
+    cmd_down.set_flags(core_graphics::event::CGEventFlags::CGEventFlagCommand);
+    cmd_down.post(CGEventTapLocation::HID);
+
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    let cmd_up = CGEvent::new_keyboard_event(source.clone(), 9, false)
+        .map_err(|e| format!("Failed to create Cmd+V up: {:?}", e))?;
+    cmd_up.set_flags(core_graphics::event::CGEventFlags::CGEventFlagCommand);
+    cmd_up.post(CGEventTapLocation::HID);
 
     Ok(())
 }
@@ -115,51 +172,28 @@ fn simulate_copy() -> Result<(), String> {
 #[cfg(not(target_os = "macos"))]
 fn simulate_copy() -> Result<(), String> {
     use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
-
     let mut enigo = Enigo::new(&EnigoSettings::default())
         .map_err(|e| format!("Enigo error: {}", e))?;
-
     enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Unicode('a'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Unicode('a'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-
     std::thread::sleep(std::time::Duration::from_millis(50));
-
     enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Unicode('c'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Unicode('c'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-
-    Ok(())
-}
-
-#[cfg(target_os = "macos")]
-fn simulate_paste() -> Result<(), String> {
-    use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
-
-    let mut enigo = Enigo::new(&EnigoSettings::default())
-        .map_err(|e| format!("Enigo error: {}", e))?;
-
-    enigo.key(Key::Meta, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('v'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('v'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Meta, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-
     Ok(())
 }
 
 #[cfg(not(target_os = "macos"))]
 fn simulate_paste() -> Result<(), String> {
     use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
-
     let mut enigo = Enigo::new(&EnigoSettings::default())
         .map_err(|e| format!("Enigo error: {}", e))?;
-
     enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Unicode('v'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Unicode('v'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
     enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-
     Ok(())
 }
