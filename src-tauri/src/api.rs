@@ -40,7 +40,7 @@ pub struct OpenRouterClient {
 }
 
 impl OpenRouterClient {
-    pub fn new(api_key: String, model: String, proxy_url: Option<String>) -> Self {
+    pub fn new(api_key: String, model: String, proxy_url: Option<String>) -> Result<Self, String> {
         let mut builder = Client::builder()
             .timeout(Duration::from_secs(120));
 
@@ -58,9 +58,9 @@ impl OpenRouterClient {
 
         let client = builder
             .build()
-            .expect("Failed to create HTTP client");
+            .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
-        Self { client, api_key, model }
+        Ok(Self { client, api_key, model })
     }
 
     pub async fn refine_text(
