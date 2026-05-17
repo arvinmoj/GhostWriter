@@ -19,8 +19,9 @@ pub fn run() {
         .setup(|app| {
             let config_dir = config::config_dir();
 
-            fs::create_dir_all(&config_dir)
-                .expect("Failed to create config directory");
+            if let Err(e) = fs::create_dir_all(&config_dir) {
+                log::error!("Failed to create config directory: {}", e);
+            }
 
             if let Err(e) = instructions::ensure_default_instruction(&config_dir) {
                 log::error!("Failed to create default instruction: {}", e);
@@ -57,5 +58,8 @@ pub fn run() {
             Ok(())
         })
         .run(tauri::generate_context!())
-        .expect("error while running GhostWriter");
+        .unwrap_or_else(|e| {
+            log::error!("GhostWriter fatal error: {}", e);
+            std::process::exit(1);
+        });
 }
