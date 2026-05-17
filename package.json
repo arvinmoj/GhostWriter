@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "build:macos": "tauri build && scripts/sign_macos.sh"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.2.0"
