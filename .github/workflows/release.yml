@@ -20,12 +20,12 @@ concurrency:
 
 jobs:
   build:
-    name: Build (${{ matrix.os }})
+    name: Build (${{ matrix.artifact_suffix }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, macos-13, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
@@ -33,7 +33,7 @@ jobs:
           - os: macos-latest
             target: aarch64-apple-darwin
             artifact_suffix: macos-arm64
-          - os: macos-13
+          - os: macos-latest
             target: x86_64-apple-darwin
             artifact_suffix: macos-x64
           - os: windows-latest
@@ -125,6 +125,6 @@ jobs:
         uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v0.1.15
         with:
           files: artifacts/**/*
-          draft: true
+          draft: ${{ inputs.draft_release != false }}
           generate_release_notes: true
           token: ${{ secrets.GITHUB_TOKEN }}
