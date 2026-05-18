@@ -26,9 +26,7 @@ pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
 
     app.global_shortcut()
         .on_shortcut(parsed, move |_app, _shortcut, event| {
-            if event.state == ShortcutState::Pressed
-                && !PROCESSING.swap(true, Ordering::SeqCst)
-            {
+            if event.state == ShortcutState::Pressed && !PROCESSING.swap(true, Ordering::SeqCst) {
                 std::thread::spawn(move || {
                     if let Err(e) = process_text() {
                         log::error!("Text processing failed: {}", e);
