@@ -79,8 +79,8 @@ pub fn load_settings() -> Result<Settings, ConfigError> {
     }
 
     let content = fs::read_to_string(&path)?;
-    let settings: Settings = serde_json::from_str(&content)
-        .map_err(|e| ConfigError::ParseError(e.to_string()))?;
+    let settings: Settings =
+        serde_json::from_str(&content).map_err(|e| ConfigError::ParseError(e.to_string()))?;
     Ok(settings)
 }
 
@@ -110,7 +110,8 @@ pub fn encrypt_api_key(api_key: &str) -> Result<String, ConfigError> {
 }
 
 pub fn decrypt_api_key(encrypted: &str) -> Result<String, ConfigError> {
-    let data = BASE64.decode(encrypted)
+    let data = BASE64
+        .decode(encrypted)
         .map_err(|e| ConfigError::DecryptionError(e.to_string()))?;
 
     if data.starts_with(ENCRYPTION_MAGIC) {
@@ -121,8 +122,7 @@ pub fn decrypt_api_key(encrypted: &str) -> Result<String, ConfigError> {
             .enumerate()
             .map(|(i, b)| b ^ machine_key[i % machine_key.len()])
             .collect();
-        String::from_utf8(decrypted)
-            .map_err(|e| ConfigError::DecryptionError(e.to_string()))
+        String::from_utf8(decrypted).map_err(|e| ConfigError::DecryptionError(e.to_string()))
     } else {
         Err(ConfigError::InvalidKeyFormat)
     }
@@ -153,6 +153,10 @@ pub enum ConfigError {
 
 impl std::fmt::Display for Settings {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Settings(model: {}, instruction: {:?})", self.model, self.instruction_file)
+        write!(
+            f,
+            "Settings(model: {}, instruction: {:?})",
+            self.model, self.instruction_file
+        )
     }
 }

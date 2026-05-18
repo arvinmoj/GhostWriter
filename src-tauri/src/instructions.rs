@@ -23,7 +23,9 @@ information."#
         .to_string()
 }
 
-pub fn ensure_default_instruction(config_dir: &std::path::Path) -> Result<std::path::PathBuf, InstructionError> {
+pub fn ensure_default_instruction(
+    config_dir: &std::path::Path,
+) -> Result<std::path::PathBuf, InstructionError> {
     let instructions_dir = config_dir.join("instructions");
     fs::create_dir_all(&instructions_dir)?;
 
@@ -41,29 +43,41 @@ pub fn create_sample_instructions(config_dir: &std::path::Path) -> Result<(), In
 
     let grammar_path = instructions_dir.join("grammar.md");
     if !grammar_path.exists() {
-        fs::write(&grammar_path, r#"You are a professional editor. Correct all grammar,
+        fs::write(
+            &grammar_path,
+            r#"You are a professional editor. Correct all grammar,
 spelling, and punctuation errors. Preserve the original tone and style.
-Do not add or remove information."#)?;
+Do not add or remove information."#,
+        )?;
     }
 
     let translate_path = instructions_dir.join("translate_to_french.md");
     if !translate_path.exists() {
-        fs::write(&translate_path, r#"Translate the following text to French.
+        fs::write(
+            &translate_path,
+            r#"Translate the following text to French.
 Keep technical terms and proper nouns in their original English form.
-Maintain the original tone and formatting."#)?;
+Maintain the original tone and formatting."#,
+        )?;
     }
 
     let friendly_path = instructions_dir.join("friendly.md");
     if !friendly_path.exists() {
-        fs::write(&friendly_path, r#"Rewrite the following text in a warm, friendly,
+        fs::write(
+            &friendly_path,
+            r#"Rewrite the following text in a warm, friendly,
 and conversational tone. Make it feel natural and approachable while
-preserving the core message."#)?;
+preserving the core message."#,
+        )?;
     }
 
     let concise_path = instructions_dir.join("concise.md");
     if !concise_path.exists() {
-        fs::write(&concise_path, r#"Shorten the following text to half its length
-without losing the essential information. Be direct and concise."#)?;
+        fs::write(
+            &concise_path,
+            r#"Shorten the following text to half its length
+without losing the essential information. Be direct and concise."#,
+        )?;
     }
 
     Ok(())

@@ -4,29 +4,31 @@ use std::sync::Mutex;
 static CLIPBOARD: Mutex<Option<Clipboard>> = Mutex::new(None);
 
 fn get_clipboard() -> Result<std::sync::MutexGuard<'static, Option<Clipboard>>, ClipboardError> {
-    let mut guard = CLIPBOARD.lock()
-        .map_err(|_| ClipboardError::LockError)?;
+    let mut guard = CLIPBOARD.lock().map_err(|_| ClipboardError::LockError)?;
     if guard.is_none() {
-        *guard = Some(Clipboard::new()
-            .map_err(|e| ClipboardError::InitError(e.to_string()))?);
+        *guard = Some(Clipboard::new().map_err(|e| ClipboardError::InitError(e.to_string()))?);
     }
     Ok(guard)
 }
 
 pub fn read_clipboard() -> Result<String, ClipboardError> {
     let mut guard = get_clipboard()?;
-    let clipboard = guard.as_mut()
+    let clipboard = guard
+        .as_mut()
         .ok_or_else(|| ClipboardError::InitError("Clipboard not initialized".into()))?;
-    let text = clipboard.get_text()
+    let text = clipboard
+        .get_text()
         .map_err(|e| ClipboardError::ReadError(e.to_string()))?;
     Ok(text)
 }
 
 pub fn write_clipboard(text: &str) -> Result<(), ClipboardError> {
     let mut guard = get_clipboard()?;
-    let clipboard = guard.as_mut()
+    let clipboard = guard
+        .as_mut()
         .ok_or_else(|| ClipboardError::InitError("Clipboard not initialized".into()))?;
-    clipboard.set_text(text)
+    clipboard
+        .set_text(text)
         .map_err(|e| ClipboardError::WriteError(e.to_string()))?;
     Ok(())
 }

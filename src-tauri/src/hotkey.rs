@@ -20,22 +20,25 @@ pub fn init(app: &AppHandle) -> Result<(), String> {
 }
 
 pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
-    let parsed: Shortcut = shortcut.parse()
+    let parsed: Shortcut = shortcut
+        .parse()
         .map_err(|e| format!("Failed to parse shortcut: {}", e))?;
 
-    app.global_shortcut().on_shortcut(parsed, move |_app, _shortcut, event| {
-        if event.state == ShortcutState::Pressed {
-            if !PROCESSING.swap(true, Ordering::SeqCst) {
-                std::thread::spawn(move || {
-                    if let Err(e) = process_text() {
-                        log::error!("Text processing failed: {}", e);
-                    }
-                    std::thread::sleep(std::time::Duration::from_secs(2));
-                    PROCESSING.store(false, Ordering::SeqCst);
-                });
+    app.global_shortcut()
+        .on_shortcut(parsed, move |_app, _shortcut, event| {
+            if event.state == ShortcutState::Pressed {
+                if !PROCESSING.swap(true, Ordering::SeqCst) {
+                    std::thread::spawn(move || {
+                        if let Err(e) = process_text() {
+                            log::error!("Text processing failed: {}", e);
+                        }
+                        std::thread::sleep(std::time::Duration::from_secs(2));
+                        PROCESSING.store(false, Ordering::SeqCst);
+                    });
+                }
             }
-        }
-    }).map_err(|e| format!("Failed to register hotkey: {}", e))?;
+        })
+        .map_err(|e| format!("Failed to register hotkey: {}", e))?;
 
     Ok(())
 }
@@ -48,8 +51,10 @@ fn process_text() -> Result<(), String> {
 
     std::thread::sleep(std::time::Duration::from_millis(100));
 
-    let original_text = crate::clipboard::read_clipboard()
-        .map_err(|e| { log::error!("[STEP 3 FAIL] {}", e); format!("Clipboard error: {}", e) })?;
+    let original_text = crate::clipboard::read_clipboard().map_err(|e| {
+        log::error!("[STEP 3 FAIL] {}", e);
+        format!("Clipboard error: {}", e)
+    })?;
     log::info!("[STEP 3] Clipboard read: {} chars", original_text.len());
 
     if original_text.trim().is_empty() {
@@ -58,8 +63,10 @@ fn process_text() -> Result<(), String> {
     }
 
     log::info!("[STEP 4] Loading settings...");
-    let settings = crate::config::load_settings()
-        .map_err(|e| { log::error!("[STEP 4 FAIL] {}", e); format!("Config error: {}", e) })?;
+    let settings = crate::config::load_settings().map_err(|e| {
+        log::error!("[STEP 4 FAIL] {}", e);
+        format!("Config error: {}", e)
+    })?;
     log::info!("[STEP 4] Settings loaded: model={}", settings.model);
 
     log::info!("[STEP 5] Loading instruction file...");
@@ -68,38 +75,52 @@ fn process_text() -> Result<(), String> {
     log::info!("[STEP 5] Instruction loaded ({} chars)", instruction.len());
 
     log::info!("[STEP 6] Decrypting API key...");
-    let api_key = crate::config::decrypt_api_key(&settings.api_key_encrypted)
-        .map_err(|e| { log::error!("[STEP 6 FAIL] {}", e); format!("Config error: {}", e) })?;
+    let api_key = crate::config::decrypt_api_key(&settings.api_key_encrypted).map_err(|e| {
+        log::error!("[STEP 6 FAIL] {}", e);
+        format!("Config error: {}", e)
+    })?;
     log::info!("[STEP 6] API key decrypted");
 
     let model = settings.model.clone();
     let proxy_url = settings.proxy_url.clone();
 
     log::info!("[STEP 7] Creating API client...");
-    let client = crate::api::OpenRouterClient::new(api_key, model, proxy_url)
-        .map_err(|e| { log::error!("[STEP 7 FAIL] {}", e); format!("API client error: {}", e) })?;
+    let client = crate::api::OpenRouterClient::new(api_key, model, proxy_url).map_err(|e| {
+        log::error!("[STEP 7 FAIL] {}", e);
+        format!("API client error: {}", e)
+    })?;
     log::info!("[STEP 7] API client created");
 
     log::info!("[STEP 8] Calling LLM API...");
-    let refined = std::thread::spawn(move || {
-        match tokio::runtime::Runtime::new() {
-            Ok(rt) => rt.block_on(client.refine_text(&instruction, &original_text)),
-            Err(e) => Err(format!("Failed to create async runtime: {}", e)),
-        }
-    }).join()
-        .unwrap_or_else(|_| Err("Thread panicked".to_string()))
-        .map_err(|e| { log::error!("[STEP 8 FAIL] {}", e); format!("API error: {}", e) })?;
-    log::info!("[STEP 8] API returned refined text ({} chars)", refined.len());
+    let refined = std::thread::spawn(move || match tokio::runtime::Runtime::new() {
+        Ok(rt) => rt.block_on(client.refine_text(&instruction, &original_text)),
+        Err(e) => Err(format!("Failed to create async runtime: {}", e)),
+    })
+    .join()
+    .unwrap_or_else(|_| Err("Thread panicked".to_string()))
+    .map_err(|e| {
+        log::error!("[STEP 8 FAIL] {}", e);
+        format!("API error: {}", e)
+    })?;
+    log::info!(
+        "[STEP 8] API returned refined text ({} chars)",
+        refined.len()
+    );
 
     log::info!("[STEP 9] Writing to clipboard...");
-    crate::clipboard::write_clipboard(&refined)
-        .map_err(|e| { log::error!("[STEP 9 FAIL] {}", e); format!("Clipboard error: {}", e) })?;
+    crate::clipboard::write_clipboard(&refined).map_err(|e| {
+        log::error!("[STEP 9 FAIL] {}", e);
+        format!("Clipboard error: {}", e)
+    })?;
     log::info!("[STEP 9] Clipboard write complete");
 
     std::thread::sleep(std::time::Duration::from_millis(50));
 
     log::info!("[STEP 10] Simulating paste...");
-    simulate_paste().map_err(|e| { log::error!("[STEP 10 FAIL] {}", e); e })?;
+    simulate_paste().map_err(|e| {
+        log::error!("[STEP 10 FAIL] {}", e);
+        e
+    })?;
     log::info!("[STEP 10] Paste simulated");
 
     log::info!("Text replacement complete");
@@ -172,28 +193,52 @@ fn simulate_paste() -> Result<(), String> {
 #[cfg(not(target_os = "macos"))]
 fn simulate_copy() -> Result<(), String> {
     use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
-    let mut enigo = Enigo::new(&EnigoSettings::default())
+    let mut enigo =
+        Enigo::new(&EnigoSettings::default()).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Control, Direction::Press)
         .map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('a'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('a'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Unicode('a'), Direction::Press)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Unicode('a'), Direction::Release)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Control, Direction::Release)
+        .map_err(|e| format!("Enigo error: {}", e))?;
     std::thread::sleep(std::time::Duration::from_millis(50));
-    enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('c'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('c'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Control, Direction::Press)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Unicode('c'), Direction::Press)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Unicode('c'), Direction::Release)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Control, Direction::Release)
+        .map_err(|e| format!("Enigo error: {}", e))?;
     Ok(())
 }
 
 #[cfg(not(target_os = "macos"))]
 fn simulate_paste() -> Result<(), String> {
     use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
-    let mut enigo = Enigo::new(&EnigoSettings::default())
+    let mut enigo =
+        Enigo::new(&EnigoSettings::default()).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Control, Direction::Press)
         .map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Control, Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('v'), Direction::Press).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Unicode('v'), Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
-    enigo.key(Key::Control, Direction::Release).map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Unicode('v'), Direction::Press)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Unicode('v'), Direction::Release)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Control, Direction::Release)
+        .map_err(|e| format!("Enigo error: {}", e))?;
     Ok(())
 }

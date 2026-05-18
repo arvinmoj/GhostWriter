@@ -41,8 +41,7 @@ pub struct OpenRouterClient {
 
 impl OpenRouterClient {
     pub fn new(api_key: String, model: String, proxy_url: Option<String>) -> Result<Self, String> {
-        let mut builder = Client::builder()
-            .timeout(Duration::from_secs(120));
+        let mut builder = Client::builder().timeout(Duration::from_secs(120));
 
         if let Some(ref proxy_str) = proxy_url {
             match reqwest::Proxy::all(proxy_str) {
@@ -60,14 +59,14 @@ impl OpenRouterClient {
             .build()
             .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
-        Ok(Self { client, api_key, model })
+        Ok(Self {
+            client,
+            api_key,
+            model,
+        })
     }
 
-    pub async fn refine_text(
-        &self,
-        instruction: &str,
-        text: &str,
-    ) -> Result<String, String> {
+    pub async fn refine_text(&self, instruction: &str, text: &str) -> Result<String, String> {
         let request = ChatRequest {
             model: self.model.clone(),
             messages: vec![
@@ -83,7 +82,8 @@ impl OpenRouterClient {
             temperature: 0.7,
         };
 
-        let response = match self.client
+        let response = match self
+            .client
             .post(OPENROUTER_URL)
             .header("Authorization", format!("Bearer {}", self.api_key))
             .header("Content-Type", "application/json")
