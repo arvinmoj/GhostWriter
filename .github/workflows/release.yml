@@ -20,25 +20,29 @@ concurrency:
 
 jobs:
   build:
-    name: Build (${{ matrix.artifact_suffix }})
+    name: 🚀 Build » ${{ matrix.job_name }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        platform: [linux-x64, macos-arm64, macos-x64, windows-x64]
         include:
-          - os: ubuntu-latest
+          - platform: linux-x64
+            os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_suffix: linux-x64
-          - os: macos-latest
+            job_name: "Linux (x64)"
+          - platform: macos-arm64
+            os: macos-latest
             target: aarch64-apple-darwin
-            artifact_suffix: macos-arm64
-          - os: macos-latest
+            job_name: "macOS (Apple Silicon)"
+          - platform: macos-x64
+            os: macos-latest
             target: x86_64-apple-darwin
-            artifact_suffix: macos-x64
-          - os: windows-latest
+            job_name: "macOS (Intel x64)"
+          - platform: windows-x64
+            os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_suffix: windows-x64
+            job_name: "Windows (x64)"
       fail-fast: false
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -98,7 +102,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
-          name: ghostwriter-${{ matrix.artifact_suffix }}
+          name: ghostwriter-${{ matrix.platform }}
           path: |
             src-tauri/target/${{ matrix.target }}/release/bundle/**/*.dmg
             src-tauri/target/${{ matrix.target }}/release/bundle/**/*.msi
@@ -108,7 +112,7 @@ jobs:
           if-no-files-found: warn
 
   release:
-    name: Create Release
+    name: 🎉 Create GitHub Release
     needs: build
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
