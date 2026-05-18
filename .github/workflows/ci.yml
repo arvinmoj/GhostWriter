@@ -23,9 +23,10 @@ jobs:
   frontend:
     name: Frontend Build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
-        timeout-minutes: 10
+        shell: bash
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -44,9 +45,9 @@ jobs:
   rust:
     name: Rust Check
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     defaults:
       run:
-        timeout-minutes: 15
         working-directory: src-tauri
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
