@@ -1,5 +1,3 @@
-docs/
-
 # Rust
 target/
 **/*.rs.bk
@@ -30,6 +28,8 @@ build/
 .env.*.local
 
 # IDE
+docs/
+.opencode/
 .vscode/
 .idea/
 *.swp
