@@ -47,7 +47,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Rust
-        uses: dtolnay/rust-toolchain@1482605bfc57e90e6fb679729dd37fe3977bcc21 # stable
+        uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: stable
           targets: ${{ matrix.target }}
