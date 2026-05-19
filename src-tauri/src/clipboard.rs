@@ -44,3 +44,29 @@ pub enum ClipboardError {
     #[error("Failed to write clipboard: {0}")]
     WriteError(String),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_error_display() {
+        let err = ClipboardError::LockError;
+        assert_eq!(err.to_string(), "Failed to acquire clipboard lock");
+
+        let err = ClipboardError::ReadError("no data".to_string());
+        assert_eq!(err.to_string(), "Failed to read clipboard: no data");
+
+        let err = ClipboardError::WriteError("permission denied".to_string());
+        assert_eq!(
+            err.to_string(),
+            "Failed to write clipboard: permission denied"
+        );
+
+        let err = ClipboardError::InitError("no display".to_string());
+        assert_eq!(
+            err.to_string(),
+            "Failed to initialize clipboard: no display"
+        );
+    }
+}
