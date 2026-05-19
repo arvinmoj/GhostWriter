@@ -5,6 +5,15 @@ use tauri::{
     App,
 };
 
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_module_compiles() {
+        // Compile verification — tray requires a running Tauri app
+        assert!(true);
+    }
+}
+
 pub fn create_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let quit = MenuItem::with_id(app, "quit", "Quit GhostWriter", true, None::<&str>)?;
     let about = MenuItem::with_id(app, "about", "About GhostWriter", true, None::<&str>)?;

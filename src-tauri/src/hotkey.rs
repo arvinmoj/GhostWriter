@@ -240,3 +240,40 @@ fn simulate_paste() -> Result<(), String> {
         .map_err(|e| format!("Enigo error: {}", e))?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_shortcut_not_empty() {
+        assert!(!DEFAULT_SHORTCUT.is_empty());
+    }
+
+    #[test]
+    fn test_default_shortcut_contains_plus() {
+        assert!(DEFAULT_SHORTCUT.contains('+'));
+    }
+
+    #[test]
+    fn test_default_shortcut_has_modifier_and_key() {
+        let parts: Vec<&str> = DEFAULT_SHORTCUT.split('+').collect();
+        assert!(parts.len() >= 2);
+        assert_eq!(parts[parts.len() - 1], "r");
+        #[cfg(target_os = "macos")]
+        {
+            assert_eq!(parts[0], "cmd");
+            assert_eq!(parts[1], "shift");
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            assert_eq!(parts[0], "ctrl");
+            assert_eq!(parts[1], "shift");
+        }
+    }
+
+    #[test]
+    fn test_processing_flag_default_is_false() {
+        assert!(!PROCESSING.load(Ordering::SeqCst));
+    }
+}
