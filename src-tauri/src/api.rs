@@ -68,8 +68,7 @@ fn extract_response(text: &str) -> Result<String, String> {
 
 impl OpenRouterClient {
     pub fn new(api_key: String, model: String, proxy_url: Option<String>) -> Result<Self, String> {
-        let mut builder = Client::builder()
-            .timeout(Duration::from_secs(120));
+        let mut builder = Client::builder().timeout(Duration::from_secs(120));
 
         if let Some(ref proxy_str) = proxy_url {
             match reqwest::Proxy::all(proxy_str) {
@@ -106,11 +105,7 @@ impl OpenRouterClient {
         Ok(client)
     }
 
-    pub async fn refine_text(
-        &self,
-        instruction: &str,
-        text: &str,
-    ) -> Result<String, String> {
+    pub async fn refine_text(&self, instruction: &str, text: &str) -> Result<String, String> {
         let request = build_chat_request(&self.model, instruction, text);
 
         let response = match self
@@ -142,5 +137,86 @@ impl OpenRouterClient {
         };
 
         extract_response(&body)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_build_chat_request() {
+        let req = build_chat_request("gpt-4", "Be concise.", "Hello world");
+        assert_eq!(req.model, "gpt-4");
+        assert_eq!(req.messages.len(), 2);
+        assert_eq!(req.messages[0].role, "system");
+        assert_eq!(req.messages[0].content, "Be concise.");
+        assert_eq!(req.messages[1].role, "user");
+        assert_eq!(req.messages[1].content, "Hello world");
+        assert_eq!(req.temperature, 0.7);
+    }
+
+    #[test]
+    fn test_extract_response_success() {
+        let json = r#"{"choices":[{"message":{"content":"Refined text"}}]}"#;
+        let result = extract_response(json).unwrap();
+        assert_eq!(result, "Refined text");
+    }
+
+    #[test]
+    fn test_extract_response_empty_choices() {
+        let json = r#"{"choices":[]}"#;
+        let result = extract_response(json);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "No response from API");
+    }
+
+    #[test]
+    fn test_extract_response_malformed_json() {
+        let result = extract_response("not json");
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Parse error"));
+    }
+
+    #[test]
+    fn test_extract_response_missing_message() {
+        let json = r#"{"choices":[{"foo":"bar"}]}"#;
+        let result = extract_response(json);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("Parse error"));
+    }
+
+    #[tokio::test]
+    async fn test_refine_text_network_error() {
+        let client = OpenRouterClient {
+            client: Client::builder().build().unwrap(),
+            api_key: "test".to_string(),
+            model: "test".to_string(),
+            base_url: "http://localhost:1/api/v1/chat/completions".to_string(),
+        };
+        let err = client
+            .refine_text("Be concise.", "Hello world")
+            .await
+            .unwrap_err();
+        assert!(err.contains("Network error") || err.contains("error"));
+    }
+
+    #[tokio::test]
+    async fn test_new_with_url_sets_base_url() {
+        let client = OpenRouterClient::new_with_url(
+            "key".to_string(),
+            "model".to_string(),
+            None,
+            "http://custom.local/api".to_string(),
+        )
+        .unwrap();
+        assert_eq!(client.base_url, "http://custom.local/api");
+    }
+
+    #[test]
+    fn test_chat_request_partial_eq() {
+        let req1 = build_chat_request("gpt-4", "Fix grammar.", "hello");
+        let req2 = build_chat_request("gpt-4", "Fix grammar.", "hello");
+        assert_eq!(req1, req2);
     }
 }
