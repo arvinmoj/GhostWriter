@@ -54,6 +54,9 @@ pub fn run() {
                 log::error!("Failed to create tray: {}", e);
             }
 
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+
             log::info!("GhostWriter initialized successfully");
             Ok(())
         })

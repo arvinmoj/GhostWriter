@@ -8,19 +8,7 @@
   },
   "app": {
     "withGlobalTauri": true,
-    "windows": [
-      {
-        "title": "GhostWriter",
-        "label": "main",
-        "visible": false,
-        "decorations": false,
-        "skipTaskbar": true,
-        "width": 0,
-        "height": 0,
-        "resizable": false,
-        "center": true
-      }
-    ],
+    "windows": [],
     "security": {
       "csp": null
     },
