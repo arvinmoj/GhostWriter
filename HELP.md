@@ -23,10 +23,31 @@ GhostWriter is a system-wide AI text refiner that works in any application. Once
 6. The app will save it securely and restart
 
 ### Option B: Manual Configuration
-Create the config file manually:
+Create the config file manually in the appropriate location for your operating system:
 
+#### macOS
 ```bash
+mkdir -p ~/Library/Application\ Support/ghostwriter
+cat > ~/Library/Application\ Support/ghostwriter/config.json << EOF
+{
+  "api_key_encrypted": "",
+  "model": "openai/gpt-4o-mini",
+  "instruction_file": "$HOME/Library/Application Support/ghostwriter/instructions/default.md",
+  "hotkey": {
+    "modifiers": ["cmd"],
+    "key": "r"
+  },
+  "proxy_url": null,
+  "first_run": false
+}
+EOF
+```
+
+#### Linux
+```bash
+# For Linux:
 mkdir -p ~/.config/ghostwriter
+# For Linux:
 cat > ~/.config/ghostwriter/config.json << EOF
 {
   "api_key_encrypted": "",
@@ -42,14 +63,42 @@ cat > ~/.config/ghostwriter/config.json << EOF
 EOF
 ```
 
+#### Windows (PowerShell)
+```powershell
+$configDir = "$env:APPDATA\ghostwriter"
+New-Item -ItemType Directory -Force -Path $configDir
+@"
+{
+  "api_key_encrypted": "",
+  "model": "openai/gpt-4o-mini",
+  "instruction_file": "$env:APPDATA\ghostwriter\instructions\default.md",
+  "hotkey": {
+    "modifiers": ["ctrl"],
+    "key": "r"
+  },
+  "proxy_url": $null,
+  "first_run": $true
+}
+"@ | Set-Content -Path "$configDir\config.json" -Encoding UTF8
+```
+
 Then restart GhostWriter - it will prompt for your API key.
 
 ## Step 3: Create Instruction Files
 
-Instruction files tell GhostWriter how to process your text. They're simple Markdown files stored in `~/.config/ghostwriter/instructions/`.
+Instruction files tell GhostWriter how to process your text. They're simple Markdown files stored in the instructions directory within your config folder.
 
 ### Default Instruction File
-GhostWriter automatically creates `~/.config/ghostwriter/instructions/default.md` with:
+GhostWriter automatically creates the default instruction file in your config directory:
+- **macOS**: `~/Library/Application Support/ghostwriter/instructions/default.md`
+- **Linux**: `~/.config/ghostwriter/instructions/default.md`
+- **Windows**: `%APPDATA%\ghostwriter\instructions\default.md`
+
+With content:
+```
+You are a helpful AI assistant. Improve the user's text for clarity, grammar, and style while preserving the original meaning and tone. Focus on
+making the text more professional and polished without adding unnecessary
+information."
 ```
 You are a helpful AI assistant. Improve the user's text for clarity, grammar, and style while preserving the original meaning and tone.
 ```
@@ -91,12 +140,16 @@ Shorten the following text to half its length without losing essential informati
 Be direct and concise. Remove filler words and redundant phrases.
 ```
 
-To use a custom instruction file, update your config:
+To use a custom instruction file, update your config with the appropriate path for your OS:
 ```json
 {
-  "instruction_file": "/Users/yourname/.config/ghostwriter/instructions/grammar.md"
+  "instruction_file": "/path/to/your/instructions/grammar.md"
 }
 ```
+Examples:
+- **macOS**: `"$HOME/Library/Application Support/ghostwriter/instructions/grammar.md"`
+- **Linux**: `"/Users/yourname/.config/ghostwriter/instructions/grammar.md"`
+- **Windows**: `"%APPDATA%\\ghostwriter\\instructions\\grammar.md"`
 
 ## Step 4: Using the Hotkey
 
@@ -148,7 +201,10 @@ Check these:
 ### API Key Issues
 - Verify your OpenRouter API key is correct
 - Check you have credits in your OpenRouter account
-- The key is stored encrypted in `~/.config/ghostwriter/config.json`
+- The key is stored encrypted in your config file:
+  - **macOS**: `~/Library/Application Support/ghostwriter/config.json`
+  - **Linux**: `~/.config/ghostwriter/config.json`
+  - **Windows**: `%APPDATA%\ghostwriter\config.json`
 - To reset: delete the config file and restart the app
 
 ### Performance
@@ -167,13 +223,26 @@ Check these:
 ## File Locations
 
 ### Configuration
-- **Config file**: `~/.config/ghostwriter/config.json`
-- **Instructions directory**: `~/.config/ghostwriter/instructions/`
-- **Default instruction**: `~/.config/ghostwriter/instructions/default.md`
+- **Config file**:
+  - macOS: `~/Library/Application Support/ghostwriter/config.json`
+  - Linux: `~/.config/ghostwriter/config.json`
+  - Windows: `%APPDATA%\ghostwriter\config.json`
+- **Instructions directory**:
+  - macOS: `~/Library/Application Support/ghostwriter/instructions/`
+  - Linux: `~/.config/ghostwriter/instructions/`
+  - Windows: `%APPDATA%\ghostwriter\instructions\`
+- **Default instruction**:
+  - macOS: `~/Library/Application Support/ghostwriter/instructions/default.md`
+  - Linux: `~/.config/ghostwriter/instructions/default.md`
+  - Windows: `%APPDATA%\ghostwriter\instructions\default.md`
 
 ### Application
 - **Binary**: `/Applications/GhostWriter.app/Contents/MacOS/ghostwriter` (if installed via DMG)
 - **Logs**: Run from Terminal to see real-time output
+- **Config file location**:
+  - macOS: `~/Library/Application Support/ghostwriter/`
+  - Linux: `~/.config/ghostwriter/`
+  - Windows: `%APPDATA%\ghostwriter\`
 
 ## Advanced Usage
 
@@ -181,7 +250,7 @@ Check these:
 GhostWriter automatically watches for changes to:
 - Config file
 - Instruction file
-No restart needed when you edit these files.
+No restart needed when you edit these files in their respective OS-specific locations.
 
 ### Multiple Instruction Files
 Create multiple `.md` files and switch between them by updating the `instruction_file` path in your config.
