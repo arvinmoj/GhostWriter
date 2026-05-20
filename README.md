@@ -2,46 +2,79 @@
 
 # GhostWriter
 
-**No more copy-pasting to browsers -- just type, trigger, and transform.**
+**No more copy-pasting to browsers — just type, trigger, and transform.**
 
+![Version](https://img.shields.io/github/v/release/arvinmoj/GhostWriter)
+![License](https://img.shields.io/github/license/arvinmoj/GhostWriter)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)
-![License](https://img.shields.io/badge/license-MIT-blue)
-![Tauri](https://img.shields.io/badge/built%20with-Tauri-ffc131)
+![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+
+## ✨ Highlights
+
+- **System-wide** — Works in every app: email, code editors, chat, documents
+- **Zero UI** — Pure keyboard shortcuts, no context switching
+- **Custom instructions** — Drop a `.md` file to define how AI transforms your text
+- **Multi-model** — GPT-4, Claude, Llama, and more via OpenRouter
+- **Privacy-first** — Your API key stays encrypted locally, zero telemetry
+- **Lightweight** — Built with Tauri + Rust, minimal memory footprint
 
 ---
 
-</div>
+## 🎯 What is GhostWriter?
 
-## What is GhostWriter?
+GhostWriter is a **background utility** that lets you refine, rewrite, or translate text **anywhere** on your computer — without ever leaving the app you're working in.
 
-GhostWriter is a **background utility** that lets you refine, rewrite, or translate text **anywhere** on your computer -- emails, code editors, chat apps, forms, documents -- without ever leaving the app you're working in.
+Highlight text, press a hotkey, and AI-powered instructions transform it on the spot. No browser tabs. No copy-paste. No interruption.
 
-Highlight text, press a hotkey, and AI-powered instructions transform it on the spot.
+---
 
-## How It Works
+## 🚀 Quick Start
+
+### Installation
+
+**macOS:**
+```bash
+# Download from Releases or use Homebrew (coming soon)
+brew install --cask ghostwriter  # placeholder
+```
+
+**Windows:**
+Download the `.msi` installer from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
+
+**Linux:**
+```bash
+chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage
+```
+
+### Setup (30 seconds)
+
+1. **Get an API key** → [OpenRouter.ai](https://openrouter.ai) (one key for GPT-4, Claude, Llama, etc.)
+2. **Create an instruction file** `~/ghost-instructions.md`:
+   ```markdown
+   Fix grammar and spelling mistakes. Improve clarity. Keep the original tone.
+   ```
+3. **Launch GhostWriter** → Configure your API key, instruction file path, and hotkey
+4. **Go** → Highlight text anywhere and press your hotkey
+
+### Usage
 
 | Step | Action |
 |------|--------|
 | **1** | Select any text in any application |
 | **2** | Press `Cmd + Shift + R` (macOS) / `Ctrl + Shift + R` (Windows/Linux) |
-| **3** | GhostWriter reads your selection and sends it to an AI model with your custom instructions |
-| **4** | The refined text replaces your original selection -- instantly |
+| **3** | GhostWriter reads your selection and sends it to AI with your instructions |
+| **4** | Transformed text replaces your original selection — instantly |
 
-That's it. No switching windows. No copy-paste. No interruption.
+---
 
-## Features
 
-| Feature | Description |
-|---------|-------------|
-| **System-Wide** | Works in every text field across your OS |
-| **Custom Instructions** | Drop a `.md` file with your prompt -- switch modes by swapping files |
-| **Multi-Model** | Powered by OpenRouter -- use GPT-4, Claude, Llama, and more |
-| **Zero UI** | All interaction happens through keyboard shortcuts |
-| **Privacy-First** | Your API key stays encrypted locally. No data stored. |
-| **Lightweight** | Built with Tauri + Rust -- small footprint, low memory usage |
-| **Proxy Support** | Route API calls through HTTP or SOCKS proxies |
+## 🛠️ Features
 
-### Example Instruction Files
+### System-Wide Text Transformation
+Works in **every text field** across your OS — email clients, IDEs, browsers, chat apps, documents, terminal editors.
+
+### Custom Instruction Files
+Your instruction file is a plain Markdown (`.md`) file that tells the AI **how** to process your text. Create as many as you want and switch between them.
 
 | File | What it does |
 |------|-------------|
@@ -49,95 +82,47 @@ That's it. No switching windows. No copy-paste. No interruption.
 | `translate.md` | "Translate this to French. Keep technical terms in English." |
 | `friendly.md` | "Rewrite this in a warm, conversational tone." |
 | `concise.md` | "Shorten this to half the length without losing key points." |
+| `code-review.md` | "Review for bugs, performance issues, and security vulnerabilities." |
 
-## Installation
+### Multi-Model Support
+Powered by [OpenRouter](https://openrouter.ai) — use any model available:
+- OpenAI: GPT-4, GPT-3.5
+- Anthropic: Claude 3 Opus, Sonnet, Haiku
+- Meta: Llama 3
+- And many more...
 
-### macOS
+---
 
-1. Download the latest `.dmg` from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
-2. Drag GhostWriter to Applications
-3. Open **System Settings -> Privacy & Security -> Accessibility** and grant permission
-4. Launch GhostWriter -- it lives in your menu bar
+## 🔒 Security & Privacy
 
-### Windows
+- **Your API key** — Stored encrypted on your local machine
+- **No proxy servers** — AI processing uses your key directly, nothing routed through us
+- **Zero telemetry** — No analytics, no usage data, no tracking
+- **Open source** — Entire codebase is auditable
 
-1. Download the latest `.msi` from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
-2. Run the installer
-3. Launch GhostWriter -- it lives in your system tray
+---
 
-### Linux
+## ⚙️ Configuration
 
-1. Download the latest `.AppImage` from [Releases](https://github.com/arvinmoj/GhostWriter/releases)
-2. `chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage`
-3. It will run in your system tray
+On first launch, GhostWriter will ask for:
 
-## Setup
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **API Key** | Your OpenRouter API key | Required |
+| **Instruction File** | Path to your `.md` prompt file | `~/ghost-instructions.md` |
+| **Model** | Preferred AI model | `openai/gpt-4` |
+| **Hotkey** | Keyboard shortcut | `Cmd/Ctrl + Shift + R` |
+| **Proxy URL** | Optional proxy for API calls | None |
 
-1. **Create an instruction file** -- for example, `~/ghost-instructions.md`:
-   ```markdown
-   Fix grammar and spelling mistakes. Improve clarity. Keep the original tone.
-   ```
+---
 
-2. **Get an API key** -- sign up at [OpenRouter.ai](https://openrouter.ai) (one key gives you access to GPT-4, Claude, Llama, and more)
-
-3. **Configure** -- on first launch, GhostWriter will ask for:
-   - Your API key (stored encrypted)
-   - Path to your instruction file
-   - Preferred model
-   - Hotkey combination
-   - Proxy URL (optional -- for HTTP or SOCKS proxies)
-
-4. **Go** -- highlight text in any app and press your hotkey
-
-## Instruction Files (The "Engine")
-
-Your instruction file is a plain Markdown (`.md`) file that tells the AI **how** to process your text. You can create as many as you want and switch between them.
-
-**Example -- `grammar.md`:**
-```markdown
-You are a professional editor. Correct grammar, spelling, and punctuation.
-Preserve the original tone and style. Do not add or remove information.
-```
-
-**Example -- `code-review.md`:**
-```markdown
-You are a senior software engineer. Review the code for bugs, performance
-issues, and security vulnerabilities. Suggest improvements concisely.
-```
-
-> **Pro tip:** Keep multiple instruction files handy and rename the active one, or configure quick-switching in settings.
-
-## Advanced Configuration
-
-### Proxy Support
-GhostWriter supports routing API requests through an HTTP or SOCKS proxy. Set the `proxy_url` field in your config:
-```json
-{
-  "proxy_url": "http://127.0.0.1:8080"
-}
-```
-Or for a SOCKS5 proxy:
-```json
-{
-  "proxy_url": "socks5://127.0.0.1:1080"
-}
-```
-Leave the field empty or omit it to connect directly.
-
-## Security & Privacy
-
-- All AI processing uses **your own API key** -- nothing is proxied through our servers
-- API keys are stored **encrypted** on your local machine
-- GhostWriter collects **no telemetry, no analytics, no usage data**
-- The entire codebase is open source and auditable
-
-## For Developers
+## 📦 Building from Source
 
 <details>
-<summary>Building from Source</summary>
+<summary>Click to expand build instructions</summary>
 
 ### Prerequisites
-- [Rust](https://rustup.rs)
+- [Rust](https://rustup.rs) (latest stable)
 - [Node.js](https://nodejs.org) (v18+)
 - Platform-specific dependencies (see [Tauri docs](https://v2.tauri.app/start/prerequisites/))
 
@@ -150,12 +135,46 @@ npm run tauri build
 ```
 
 The compiled binary will be in `src-tauri/target/release/`.
+
+### Development
+```bash
+npm run tauri dev
+```
+
 </details>
 
-## Contributing
+---
 
-Contributions are welcome! Please open an [issue](https://github.com/arvinmoj/GhostWriter/issues) or submit a PR.
+## 🤝 Contributing
 
-## License
+Contributions are welcome! Whether it's:
+- 🐛 Bug reports
+- 💡 Feature suggestions
+- 📝 Documentation improvements
+- 🔧 Code contributions
 
-[MIT](LICENSE) (c) Arvin
+Please open an [issue](https://github.com/arvinmoj/GhostWriter/issues) or submit a PR.
+
+---
+
+## 📄 License
+
+[MIT](LICENSE) — (c) Arvin Moj
+
+---
+
+## 🙏 Acknowledgments
+
+- [Tauri](https://tauri.app) — For the amazing cross-platform framework
+- [OpenRouter](https://openrouter.ai) — For unified AI model access
+- [Rust](https://www.rust-lang.org) — For performance and safety
+
+---
+
+<div align="center">
+
+**⭐ If GhostWriter saves you time, consider starring the repo!**
+
+[Report Bug](https://github.com/arvinmoj/GhostWriter/issues) · [Request Feature](https://github.com/arvinmoj/GhostWriter/issues) · [Download](https://github.com/arvinmoj/GhostWriter/releases)
+
+</div>
