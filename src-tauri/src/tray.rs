@@ -2,7 +2,7 @@ use tauri::{
     image::Image,
     menu::{Menu, MenuItem},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
-    App,
+    App, Manager,
 };
 
 #[cfg(test)]
@@ -25,7 +25,7 @@ pub fn create_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
     let icon = Image::from_bytes(icon_bytes)?;
     log::info!("Loaded tray icon successfully, size: {} bytes", icon_bytes.len());
 
-    let _tray = TrayIconBuilder::new()
+    let tray = TrayIconBuilder::new()
         .icon(icon)
         .menu(&menu)
         .tooltip("GhostWriter - Press Cmd+Shift+R to transform text")
@@ -51,6 +51,8 @@ pub fn create_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             }
         })
         .build(app)?;
+
+    app.manage(tray);
 
     log::info!("System tray created");
     Ok(())
