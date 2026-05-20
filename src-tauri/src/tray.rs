@@ -23,7 +23,10 @@ pub fn create_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
 
     let icon_bytes = include_bytes!("../icons/icon.png");
     let icon = Image::from_bytes(icon_bytes)?;
-    log::info!("Loaded tray icon successfully, size: {} bytes", icon_bytes.len());
+    log::info!(
+        "Loaded tray icon successfully, size: {} bytes",
+        icon_bytes.len()
+    );
 
     let tray = TrayIconBuilder::new()
         .icon(icon)
