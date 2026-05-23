@@ -8,6 +8,7 @@
 ![License](https://img.shields.io/github/license/arvinmoj/GhostWriter)
 ![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+</div>
 
 ## ✨ Highlights
 
@@ -18,15 +19,26 @@
 - **Privacy-first** — Your API key stays encrypted locally, zero telemetry
 - **Lightweight** — Built with Tauri + Rust, minimal memory footprint
 
----
+## Table of Contents
 
-## 🎯 What is GhostWriter?
+- [About GhostWriter](#about-ghostwriter)
+- [Quick Start](#quick-start)
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Usage Examples](#usage-examples)
+- [Configuration](#configuration)
+- [Building from Source](#building-from-source)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
+## About GhostWriter
 
 GhostWriter is a **background utility** that lets you refine, rewrite, or translate text **anywhere** on your computer — without ever leaving the app you're working in.
 
 Highlight text, press a hotkey, and AI-powered instructions transform it on the spot. No browser tabs. No copy-paste. No interruption.
 
----
+Whether you're fixing grammar in an email, translating code comments, or making your writing more concise, GhostWriter puts AI-powered text transformation at your fingertips — exactly where you need it.
 
 ## 🚀 Quick Start
 
@@ -50,9 +62,9 @@ chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage
 
 1. **Get an API key** → [OpenRouter.ai](https://openrouter.ai) (one key for GPT-4, Claude, Llama, etc.)
 2. **Create an instruction file** `~/ghost-instructions.md`:
-   ```markdown
-   Fix grammar and spelling mistakes. Improve clarity. Keep the original tone.
-   ```
+    ```markdown
+    Fix grammar and spelling mistakes. Improve clarity. Keep the original tone.
+    ```
 3. **Launch GhostWriter** → Configure your API key, instruction file path, and hotkey
 4. **Go** → Highlight text anywhere and press your hotkey
 
@@ -65,10 +77,7 @@ chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage
 | **3** | GhostWriter reads your selection and sends it to AI with your instructions |
 | **4** | Transformed text replaces your original selection — instantly |
 
----
-
-
-## 🛠️ Features
+## 🎯 Features
 
 ### System-Wide Text Transformation
 Works in **every text field** across your OS — email clients, IDEs, browsers, chat apps, documents, terminal editors.
@@ -91,16 +100,25 @@ Powered by [OpenRouter](https://openrouter.ai) — use any model available:
 - Meta: Llama 3
 - And many more...
 
----
+## 💡 Usage Examples
 
-## 🔒 Security & Privacy
+### Improving Writing Quality
+Highlight a paragraph in your document and press your hotkey to instantly:
+- Fix grammar and spelling
+- Improve sentence structure
+- Enhance vocabulary while maintaining your voice
 
-- **Your API key** — Stored encrypted on your local machine
-- **No proxy servers** — AI processing uses your key directly, nothing routed through us
-- **Zero telemetry** — No analytics, no usage data, no tracking
-- **Open source** — Entire codebase is auditable
+### Code Documentation
+Select technical comments in your IDE and transform them to:
+- Be more clear and concise
+- Follow documentation standards
+- Explain complex logic in simple terms
 
----
+### Communication Enhancement
+Before sending a message in any chat app:
+- Make your tone more professional or friendly
+- Ensure your message is clear and concise
+- Translate to another language while preserving meaning
 
 ## ⚙️ Configuration
 
@@ -172,8 +190,6 @@ Create the config file in the appropriate location for your OS:
 ```
 </details>
 
----
-
 ## 📦 Building from Source
 
 <details>
@@ -201,8 +217,6 @@ npm run tauri dev
 
 </details>
 
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! Whether it's:
@@ -211,21 +225,17 @@ Contributions are welcome! Whether it's:
 - 📝 Documentation improvements
 - 🔧 Code contributions
 
-Please open an [issue](https://github.com/arvinmoj/GhostWriter/issues) or submit a PR.
-
----
+We welcome contributions from everyone. Please read our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
 ## 📄 License
 
-[MIT](LICENSE) — (c) Arvin Moj
-
----
+[MIT](LICENSE) — (c) Arvin
 
 ## 🙏 Acknowledgments
 
+- [Rust](https://www.rust-lang.org) — For performance and safety
 - [Tauri](https://tauri.app) — For the amazing cross-platform framework
 - [OpenRouter](https://openrouter.ai) — For unified AI model access
-- [Rust](https://www.rust-lang.org) — For performance and safety
 
 ---
 
