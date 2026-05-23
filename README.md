@@ -114,6 +114,64 @@ On first launch, GhostWriter will ask for:
 | **Hotkey** | Keyboard shortcut | `Cmd/Ctrl + Shift + R` |
 | **Proxy URL** | Optional proxy for API calls | None |
 
+### Configuration File Template
+
+Create the config file in the appropriate location for your OS:
+
+<details>
+<summary><b>Linux</b> — <code>~/.config/ghostwriter/config.json</code></summary>
+
+```json
+{
+  "api_key_encrypted": "",
+  "model": "openai/gpt-4o-mini",
+  "instruction_file": "/Users/$(whoami)/.config/ghostwriter/instructions/default.md",
+  "hotkey": {
+    "modifiers": ["cmd"],
+    "key": "r"
+  },
+  "proxy_url": null,
+  "first_run": false
+}
+```
+</details>
+
+<details>
+<summary><b>Windows</b> — <code>%APPDATA%\ghostwriter\config.json</code></summary>
+
+```json
+{
+  "api_key_encrypted": "",
+  "model": "openai/gpt-4o-mini",
+  "instruction_file": "%APPDATA%\\ghostwriter\\instructions\\default.md",
+  "hotkey": {
+    "modifiers": ["ctrl"],
+    "key": "r"
+  },
+  "proxy_url": null,
+  "first_run": true
+}
+```
+</details>
+
+<details>
+<summary><b>macOS</b> — <code>~/Library/Application Support/ghostwriter/config.json</code></summary>
+
+```json
+{
+  "api_key_encrypted": "",
+  "model": "openai/gpt-4o-mini",
+  "instruction_file": "$HOME/Library/Application Support/ghostwriter/instructions/default.md",
+  "hotkey": {
+    "modifiers": ["cmd"],
+    "key": "r"
+  },
+  "proxy_url": null,
+  "first_run": false
+}
+```
+</details>
+
 ---
 
 ## 📦 Building from Source
