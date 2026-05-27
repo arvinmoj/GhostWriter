@@ -1,4 +1,5 @@
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine};
+use log;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -56,13 +57,68 @@ impl Default for Settings {
 }
 
 pub fn config_dir() -> PathBuf {
-    dirs::config_dir()
+    dirs::home_dir()
         .unwrap_or_else(|| PathBuf::from("."))
+        .join(".config")
         .join(CONFIG_DIR)
 }
 
 fn config_path() -> PathBuf {
     config_dir().join(CONFIG_FILE)
+}
+
+/// Returns the legacy config directory path for backward compatibility
+/// On macOS: ~/Library/Application Support/ghostwriter
+/// On Linux/Windows: Same as config_dir() for consistency
+fn legacy_config_dir() -> PathBuf {
+    #[cfg(target_os = "macos")]
+    {
+        dirs::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join("Library")
+            .join("Application Support")
+            .join(CONFIG_DIR)
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        // On non-macOS platforms, legacy and current paths are the same
+        config_dir()
+    }
+}
+
+/// Returns the legacy config file path for backward compatibility
+fn legacy_config_path() -> PathBuf {
+    legacy_config_dir().join(CONFIG_FILE)
+}
+
+/// Migrates settings from legacy location to new XDG location if needed
+/// Returns Ok(()) if migration succeeded or wasn't needed
+/// Returns Err if migration failed
+pub fn migrate_legacy_config_if_needed() -> Result<(), ConfigError> {
+    let legacy_path = legacy_config_path();
+    let new_path = config_path();
+
+    // Only migrate if legacy file exists and new file doesn't exist
+    if legacy_path.exists() && !new_path.exists() {
+        // Ensure new config directory exists
+        let new_dir = config_dir();
+        fs::create_dir_all(&new_dir)?;
+
+        // Copy the file
+        fs::copy(&legacy_path, &new_path)?;
+
+        log::info!(
+            "Migrated config from {} to {}",
+            legacy_path.display(),
+            new_path.display()
+        );
+
+        // Optionally remove legacy file after successful migration
+        // Commenting out for safety - user can manually remove if desired
+        // fs::remove_file(&legacy_path)?;
+    }
+
+    Ok(())
 }
 
 fn default_instruction_path() -> PathBuf {
@@ -331,8 +387,26 @@ mod tests {
     fn test_config_dir_format() {
         let dir = config_dir();
         let dir_str = dir.to_string_lossy();
-        assert!(dir_str.contains("ghostwriter"));
+        assert!(dir_str.contains(".config/ghostwriter"));
         assert!(dir.is_absolute());
+    }
+
+    #[test]
+    fn test_legacy_config_dir_macos() {
+        #[cfg(target_os = "macos")]
+        {
+            let dir = legacy_config_dir();
+            let dir_str = dir.to_string_lossy();
+            assert!(dir_str.contains("Library/Application Support/ghostwriter"));
+            assert!(dir.is_absolute());
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            // On non-macOS, legacy and current paths should be the same
+            let legacy_dir = legacy_config_dir();
+            let current_dir = config_dir();
+            assert_eq!(legacy_dir, current_dir);
+        }
     }
 
     #[test]

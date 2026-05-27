@@ -31,6 +31,10 @@ pub fn run() {
                 log::error!("Failed to create sample instructions: {}", e);
             }
 
+            // Migrate legacy config if needed before loading settings
+            if let Err(e) = config::migrate_legacy_config_if_needed() {
+                log::warn!("Failed to migrate legacy config: {}", e);
+            }
             let _settings = match config::load_settings() {
                 Ok(s) => {
                     log::info!("Loaded settings: model={}", s.model);

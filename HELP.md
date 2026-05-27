@@ -27,12 +27,12 @@ Create the config file manually in the appropriate location for your operating s
 
 #### macOS
 ```bash
-mkdir -p ~/Library/Application\ Support/ghostwriter
-cat > ~/Library/Application\ Support/ghostwriter/config.json << EOF
+mkdir -p ~/.config/ghostwriter
+cat > ~/.config/ghostwriter/config.json << EOF
 {
   "api_key_encrypted": "",
   "model": "openai/gpt-4o-mini",
-  "instruction_file": "$HOME/Library/Application Support/ghostwriter/instructions/default.md",
+  "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
     "modifiers": ["cmd"],
     "key": "r"
@@ -90,7 +90,7 @@ Instruction files tell GhostWriter how to process your text. They're simple Mark
 
 ### Default Instruction File
 GhostWriter automatically creates the default instruction file in your config directory:
-- **macOS**: `~/Library/Application Support/ghostwriter/instructions/default.md`
+- **macOS**: `~/.config/ghostwriter/instructions/default.md`
 - **Linux**: `~/.config/ghostwriter/instructions/default.md`
 - **Windows**: `%APPDATA%\ghostwriter\instructions\default.md`
 
@@ -147,7 +147,7 @@ To use a custom instruction file, update your config with the appropriate path f
 }
 ```
 Examples:
-- **macOS**: `"$HOME/Library/Application Support/ghostwriter/instructions/grammar.md"`
+- **macOS**: `"$HOME/.config/ghostwriter/instructions/grammar.md"`
 - **Linux**: `"/Users/yourname/.config/ghostwriter/instructions/grammar.md"`
 - **Windows**: `"%APPDATA%\\ghostwriter\\instructions\\grammar.md"`
 
@@ -202,7 +202,7 @@ Check these:
 - Verify your OpenRouter API key is correct
 - Check you have credits in your OpenRouter account
 - The key is stored encrypted in your config file:
-  - **macOS**: `~/Library/Application Support/ghostwriter/config.json`
+  - **macOS**: `~/.config/ghostwriter/config.json`
   - **Linux**: `~/.config/ghostwriter/config.json`
   - **Windows**: `%APPDATA%\ghostwriter\config.json`
 - To reset: delete the config file and restart the app
@@ -224,15 +224,15 @@ Check these:
 
 ### Configuration
 - **Config file**:
-  - macOS: `~/Library/Application Support/ghostwriter/config.json`
+  - macOS: `~/.config/ghostwriter/config.json`
   - Linux: `~/.config/ghostwriter/config.json`
   - Windows: `%APPDATA%\ghostwriter\config.json`
 - **Instructions directory**:
-  - macOS: `~/Library/Application Support/ghostwriter/instructions/`
+  - macOS: `~/.config/ghostwriter/instructions/`
   - Linux: `~/.config/ghostwriter/instructions/`
   - Windows: `%APPDATA%\ghostwriter\instructions\`
 - **Default instruction**:
-  - macOS: `~/Library/Application Support/ghostwriter/instructions/default.md`
+  - macOS: `~/.config/ghostwriter/instructions/default.md`
   - Linux: `~/.config/ghostwriter/instructions/default.md`
   - Windows: `%APPDATA%\ghostwriter\instructions\default.md`
 
@@ -240,7 +240,7 @@ Check these:
 - **Binary**: `/Applications/GhostWriter.app/Contents/MacOS/ghostwriter` (if installed via DMG)
 - **Logs**: Run from Terminal to see real-time output
 - **Config file location**:
-  - macOS: `~/Library/Application Support/ghostwriter/`
+  - macOS: `~/.config/ghostwriter/`
   - Linux: `~/.config/ghostwriter/`
   - Windows: `%APPDATA%\ghostwriter\`
 

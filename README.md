@@ -173,13 +173,13 @@ Create the config file in the appropriate location for your OS:
 </details>
 
 <details>
-<summary><b>macOS</b> — <code>~/Library/Application Support/ghostwriter/config.json</code></summary>
+<summary><b>macOS</b> — <code>~/.config/ghostwriter/config.json</code></summary>
 
 ```json
 {
   "api_key_encrypted": "",
   "model": "openai/gpt-4o-mini",
-  "instruction_file": "$HOME/Library/Application Support/ghostwriter/instructions/default.md",
+  "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
     "modifiers": ["cmd"],
     "key": "r"
