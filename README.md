@@ -46,8 +46,8 @@ Whether you're fixing grammar in an email, translating code comments, or making 
 
 **macOS:**
 ```bash
-# Download from Releases or use Homebrew (coming soon)
-brew install --cask ghostwriter  # placeholder
+brew tap arvinmoj/ghostwriter
+brew install --cask ghostwriter
 ```
 
 **Windows:**
