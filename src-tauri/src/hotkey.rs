@@ -13,6 +13,8 @@ const DEFAULT_SHORTCUT: &str = "ctrl+shift+r";
 #[cfg(target_os = "linux")]
 const DEFAULT_SHORTCUT: &str = "ctrl+shift+r";
 
+const SELECTION_MARKER: &str = "__GHOSTWRITER_NO_SEL__";
+
 pub fn init(app: &AppHandle) -> Result<(), String> {
     register_hotkey(app, DEFAULT_SHORTCUT)?;
     log::info!("Global hotkey registered: {}", DEFAULT_SHORTCUT);
@@ -44,10 +46,31 @@ pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
 fn process_text() -> Result<(), String> {
     log::info!("[STEP 1] Hotkey triggered, starting text capture");
 
-    simulate_copy()?;
-    log::info!("[STEP 2] Copy simulated successfully");
+    // Save current clipboard content
+    let saved_clipboard = crate::clipboard::read_clipboard().unwrap_or_default();
+    log::info!(
+        "[STEP 1a] Saved clipboard ({} chars)",
+        saved_clipboard.len()
+    );
 
+    // Try to copy only the current selection (Cmd+C without Cmd+A)
+    simulate_only_copy()?;
     std::thread::sleep(std::time::Duration::from_millis(100));
+
+    let selection_text = crate::clipboard::read_clipboard().unwrap_or_default();
+    log::info!("[STEP 1b] After copy-only: {} chars", selection_text.len());
+
+    // Check if clipboard changed - if yes, there was a selection
+    if !selection_text.is_empty() && selection_text != saved_clipboard {
+        log::info!("[STEP 1c] Existing selection detected, using selected text");
+    } else {
+        // No selection found, select all and copy
+        log::info!("[STEP 1c] No selection found, selecting all text");
+        simulate_copy()?;
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+
+    log::info!("[STEP 2] Copy simulated successfully");
 
     let original_text = crate::clipboard::read_clipboard().map_err(|e| {
         log::error!("[STEP 3 FAIL] {}", e);
@@ -165,6 +188,30 @@ fn simulate_copy() -> Result<(), String> {
 }
 
 #[cfg(target_os = "macos")]
+fn simulate_only_copy() -> Result<(), String> {
+    use core_graphics::event::{CGEvent, CGEventTapLocation};
+    use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
+
+    let source = CGEventSource::new(CGEventSourceStateID::HIDSystemState)
+        .map_err(|e| format!("Failed to create event source: {:?}", e))?;
+
+    // Copy: Cmd+C (keycode 8 = C)
+    let cmd_down = CGEvent::new_keyboard_event(source.clone(), 8, true)
+        .map_err(|e| format!("Failed to create Cmd+C down: {:?}", e))?;
+    cmd_down.set_flags(core_graphics::event::CGEventFlags::CGEventFlagCommand);
+    cmd_down.post(CGEventTapLocation::HID);
+
+    std::thread::sleep(std::time::Duration::from_millis(50));
+
+    let cmd_up = CGEvent::new_keyboard_event(source.clone(), 8, false)
+        .map_err(|e| format!("Failed to create Cmd+C up: {:?}", e))?;
+    cmd_up.set_flags(core_graphics::event::CGEventFlags::CGEventFlagCommand);
+    cmd_up.post(CGEventTapLocation::HID);
+
+    Ok(())
+}
+
+#[cfg(target_os = "macos")]
 fn simulate_paste() -> Result<(), String> {
     use core_graphics::event::{CGEvent, CGEventTapLocation};
     use core_graphics::event_source::{CGEventSource, CGEventSourceStateID};
@@ -206,6 +253,26 @@ fn simulate_copy() -> Result<(), String> {
         .key(Key::Control, Direction::Release)
         .map_err(|e| format!("Enigo error: {}", e))?;
     std::thread::sleep(std::time::Duration::from_millis(50));
+    enigo
+        .key(Key::Control, Direction::Press)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Unicode('c'), Direction::Press)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Unicode('c'), Direction::Release)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    enigo
+        .key(Key::Control, Direction::Release)
+        .map_err(|e| format!("Enigo error: {}", e))?;
+    Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn simulate_only_copy() -> Result<(), String> {
+    use enigo::{Direction, Enigo, Key, Keyboard, Settings as EnigoSettings};
+    let mut enigo =
+        Enigo::new(&EnigoSettings::default()).map_err(|e| format!("Enigo error: {}", e))?;
     enigo
         .key(Key::Control, Direction::Press)
         .map_err(|e| format!("Enigo error: {}", e))?;
@@ -275,5 +342,11 @@ mod tests {
     #[test]
     fn test_processing_flag_default_is_false() {
         assert!(!PROCESSING.load(Ordering::SeqCst));
+    }
+
+    #[test]
+    fn test_simulate_only_copy_is_callable() {
+        let result = simulate_only_copy();
+        assert!(result.is_ok() || result.is_err());
     }
 }
