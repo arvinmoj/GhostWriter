@@ -13,8 +13,6 @@ const DEFAULT_SHORTCUT: &str = "ctrl+shift+r";
 #[cfg(target_os = "linux")]
 const DEFAULT_SHORTCUT: &str = "ctrl+shift+r";
 
-const SELECTION_MARKER: &str = "__GHOSTWRITER_NO_SEL__";
-
 pub fn init(app: &AppHandle) -> Result<(), String> {
     register_hotkey(app, DEFAULT_SHORTCUT)?;
     log::info!("Global hotkey registered: {}", DEFAULT_SHORTCUT);
