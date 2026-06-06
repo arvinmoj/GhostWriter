@@ -35,7 +35,7 @@ pub fn run() {
             if let Err(e) = config::migrate_legacy_config_if_needed() {
                 log::warn!("Failed to migrate legacy config: {}", e);
             }
-            let _settings = match config::load_settings() {
+            let mut _settings = match config::load_settings() {
                 Ok(s) => {
                     log::info!("Loaded settings: model={}", s.model);
                     s
@@ -49,6 +49,25 @@ pub fn run() {
                     default
                 }
             };
+
+            // Auto-encrypt raw API key if present, then clear it
+            if let Some(ref raw_key) = _settings.api_key.clone() {
+                if !raw_key.is_empty() {
+                    log::info!("Encrypting raw API key from config");
+                    match config::encrypt_api_key(raw_key) {
+                        Ok(encrypted) => {
+                            _settings.api_key_encrypted = encrypted;
+                            _settings.api_key = None;
+                            if let Err(e) = config::save_settings(&_settings) {
+                                log::error!("Failed to save encrypted key: {}", e);
+                            } else {
+                                log::info!("API key encrypted and raw key cleared");
+                            }
+                        }
+                        Err(e) => log::error!("Failed to encrypt API key: {}", e),
+                    }
+                }
+            }
 
             if let Err(e) = hotkey::init(app.handle()) {
                 log::error!("Failed to initialize hotkey: {}", e);

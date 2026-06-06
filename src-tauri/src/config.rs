@@ -35,7 +35,9 @@ impl Default for HotkeyConfig {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Settings {
+    #[serde(default)]
     pub api_key_encrypted: String,
+    pub api_key: Option<String>,
     pub model: String,
     pub instruction_file: PathBuf,
     pub hotkey: HotkeyConfig,
@@ -48,6 +50,7 @@ impl Default for Settings {
     fn default() -> Self {
         Self {
             api_key_encrypted: String::new(),
+            api_key: None,
             model: "openai/gpt-4o-mini".to_string(),
             instruction_file: default_instruction_path(),
             hotkey: HotkeyConfig::default(),
@@ -217,12 +220,13 @@ impl std::fmt::Display for Settings {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Settings(model: {}, instruction: {:?}, api_base_url: {})",
+            "Settings(model: {}, instruction: {:?}, api_base_url: {}, has_raw_key: {})",
             self.model,
             self.instruction_file,
             self.api_base_url
                 .as_deref()
-                .unwrap_or("default(openrouter)")
+                .unwrap_or("default(openrouter)"),
+            self.api_key.is_some()
         )
     }
 }
@@ -304,6 +308,7 @@ mod tests {
         assert_eq!(s.model, "openai/gpt-4o-mini");
         assert!(s.first_run);
         assert!(s.api_key_encrypted.is_empty());
+        assert!(s.api_key.is_none());
         assert_eq!(s.hotkey.key, "r");
         assert!(s.proxy_url.is_none());
         assert!(s.api_base_url.is_none());
@@ -323,6 +328,7 @@ mod tests {
     fn test_settings_serde_roundtrip() {
         let s = Settings {
             api_key_encrypted: "encrypted_value".to_string(),
+            api_key: Some("raw_key".to_string()),
             model: "anthropic/claude-3".to_string(),
             instruction_file: PathBuf::from("/tmp/test.md"),
             hotkey: HotkeyConfig {
@@ -339,6 +345,7 @@ mod tests {
 
         assert_eq!(deserialized.model, s.model);
         assert_eq!(deserialized.api_key_encrypted, s.api_key_encrypted);
+        assert_eq!(deserialized.api_key, s.api_key);
         assert_eq!(deserialized.instruction_file, s.instruction_file);
         assert_eq!(deserialized.hotkey.key, s.hotkey.key);
         assert_eq!(deserialized.hotkey.modifiers, s.hotkey.modifiers);
@@ -363,6 +370,7 @@ mod tests {
 
         let settings = Settings {
             api_key_encrypted: "test_enc".to_string(),
+            api_key: None,
             model: "test-model".to_string(),
             instruction_file: PathBuf::from("/tmp/test.md"),
             hotkey: HotkeyConfig::default(),
@@ -423,6 +431,7 @@ mod tests {
     fn test_display_does_not_leak_key() {
         let s = Settings {
             api_key_encrypted: "secret-key-value".to_string(),
+            api_key: None,
             model: "gpt-4".to_string(),
             instruction_file: PathBuf::from("/tmp/test.md"),
             hotkey: HotkeyConfig::default(),
@@ -434,6 +443,7 @@ mod tests {
         let display = s.to_string();
         assert!(display.contains("gpt-4"));
         assert!(display.contains("default(openrouter)"));
+        assert!(display.contains("has_raw_key: false"));
         assert!(!display.contains("secret-key-value"));
     }
 
