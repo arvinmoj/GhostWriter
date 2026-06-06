@@ -40,6 +40,7 @@ mkdir -p ~/.config/ghostwriter
 cat > ~/.config/ghostwriter/config.json << EOF
 {
   "api_key_encrypted": "",
+  "api_key": null,
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
@@ -55,12 +56,11 @@ EOF
 
 #### Linux
 ```bash
-# For Linux:
 mkdir -p ~/.config/ghostwriter
-# For Linux:
 cat > ~/.config/ghostwriter/config.json << EOF
 {
   "api_key_encrypted": "",
+  "api_key": null,
   "model": "openai/gpt-4o-mini",
   "instruction_file": "/Users/$(whoami)/.config/ghostwriter/instructions/default.md",
   "hotkey": {
@@ -81,6 +81,7 @@ New-Item -ItemType Directory -Force -Path $configDir
 @"
 {
   "api_key_encrypted": "",
+  "api_key": null,
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$env:APPDATA\ghostwriter\instructions\default.md",
   "hotkey": {
@@ -94,7 +95,7 @@ New-Item -ItemType Directory -Force -Path $configDir
 "@ | Set-Content -Path "$configDir\config.json" -Encoding UTF8
 ```
 
-Then restart GhostWriter - it will prompt for your API key.
+Then restart GhostWriter. It will prompt for your API key on first launch, **or** you can set `"api_key"` to your raw key in the config file — GhostWriter will auto-encrypt it and clear the plain-text field on next startup.
 
 ## Step 3: Create Instruction Files
 
@@ -219,6 +220,7 @@ Check these:
   - **Linux**: `~/.config/ghostwriter/config.json`
   - **Windows**: `%APPDATA%\ghostwriter\config.json`
 - To reset: delete the config file and restart the app
+- **Auto-encryption**: You can set `"api_key"` to your raw key in the config file — GhostWriter will encrypt it on startup and clear the plain-text field automatically
 
 ### Performance
 - First request may be slower (API initialization)

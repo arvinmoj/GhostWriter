@@ -16,6 +16,7 @@
 - **Zero UI** — Pure keyboard shortcuts, no context switching
 - **Custom instructions** — Drop a `.md` file to define how AI transforms your text
 - **Multi-provider** — GPT-4, Claude, Llama via OpenRouter; Big Pickle (free) via OpenCode Zen
+- **Auto-encryption** — Drop a raw API key in config; GhostWriter encrypts it on first launch
 - **Privacy-first** — Your API key stays encrypted locally, zero telemetry
 - **Lightweight** — Built with Tauri + Rust, minimal memory footprint
 
@@ -141,7 +142,8 @@ On first launch, GhostWriter will ask for:
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **API Key** | Your API key (OpenRouter or OpenCode Zen) | Required |
+| **API Key (encrypted)** | Your encrypted API key (set automatically) | Auto-filled |
+| **API Key (raw)** | Plain-text API key — auto-encrypted on next launch | None |
 | **Instruction File** | Path to your `.md` prompt file | `~/ghost-instructions.md` |
 | **Model** | Preferred AI model | `openai/gpt-4o-mini` |
 | **Hotkey** | Keyboard shortcut | `Cmd/Ctrl + Shift + R` |
@@ -158,6 +160,7 @@ Create the config file in the appropriate location for your OS:
 ```json
 {
   "api_key_encrypted": "",
+  "api_key": null,
   "model": "openai/gpt-4o-mini",
   "instruction_file": "/Users/$(whoami)/.config/ghostwriter/instructions/default.md",
   "hotkey": {
@@ -177,6 +180,7 @@ Create the config file in the appropriate location for your OS:
 ```json
 {
   "api_key_encrypted": "",
+  "api_key": null,
   "model": "openai/gpt-4o-mini",
   "instruction_file": "%APPDATA%\\ghostwriter\\instructions\\default.md",
   "hotkey": {
@@ -196,6 +200,7 @@ Create the config file in the appropriate location for your OS:
 ```json
 {
   "api_key_encrypted": "",
+  "api_key": null,
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
