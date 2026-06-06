@@ -15,7 +15,7 @@
 - **System-wide** — Works in every app: email, code editors, chat, documents
 - **Zero UI** — Pure keyboard shortcuts, no context switching
 - **Custom instructions** — Drop a `.md` file to define how AI transforms your text
-- **Multi-model** — GPT-4, Claude, Llama, and more via OpenRouter
+- **Multi-provider** — GPT-4, Claude, Llama via OpenRouter; Big Pickle (free) via OpenCode Zen
 - **Privacy-first** — Your API key stays encrypted locally, zero telemetry
 - **Lightweight** — Built with Tauri + Rust, minimal memory footprint
 
@@ -60,13 +60,20 @@ chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage
 
 ### Setup (30 seconds)
 
-1. **Get an API key** → [OpenRouter.ai](https://openrouter.ai) (one key for GPT-4, Claude, Llama, etc.)
-2. **Create an instruction file** `~/ghost-instructions.md`:
-    ```markdown
-    Fix grammar and spelling mistakes. Improve clarity. Keep the original tone.
-    ```
-3. **Launch GhostWriter** → Configure your API key, instruction file path, and hotkey
-4. **Go** → Highlight text anywhere and press your hotkey
+**Option 1 — OpenRouter** (GPT-4, Claude, Llama, etc.):
+1. **Get an API key** → [OpenRouter.ai](https://openrouter.ai) (one key for 200+ models)
+2. **Launch GhostWriter** → Configure your API key, instruction file path, and hotkey
+3. **Go** → Highlight text anywhere and press your hotkey
+
+**Option 2 — OpenCode Zen** (Big Pickle is **free**):
+1. **Get an API key** → [opencode.ai/zen](https://opencode.ai/zen) (free tier available)
+2. **Configure** — set `api_base_url` and `model` in your config (see Configuration section)
+3. **Launch GhostWriter** and start transforming text instantly — no API costs
+
+Create an instruction file `~/ghost-instructions.md`:
+```markdown
+Fix grammar and spelling mistakes. Improve clarity. Keep the original tone.
+```
 
 ### Usage
 
@@ -93,12 +100,20 @@ Your instruction file is a plain Markdown (`.md`) file that tells the AI **how**
 | `concise.md` | "Shorten this to half the length without losing key points." |
 | `code-review.md` | "Review for bugs, performance issues, and security vulnerabilities." |
 
-### Multi-Model Support
-Powered by [OpenRouter](https://openrouter.ai) — use any model available:
-- OpenAI: GPT-4, GPT-3.5
-- Anthropic: Claude 3 Opus, Sonnet, Haiku
-- Meta: Llama 3
+### Multi-Provider Support
+
+**OpenRouter** — 200+ models, one API key:
+- OpenAI: GPT-4, GPT-5 series
+- Anthropic: Claude Opus 4, Sonnet 4
+- Google: Gemini 3 Pro, Gemini 3 Flash
+- Meta: Llama 3, 4
 - And many more...
+
+**OpenCode Zen** — Curated provider with free models:
+- [Big Pickle](https://opencode.ai/docs/zen/) — **Free** (limited time), 200K context
+- DeepSeek V4 Flash Free — Free
+- MiMo-V2.5 Free, Nemotron 3 Ultra Free
+- Plus paid models: Claude, GPT, Gemini, Qwen, and more
 
 ## 💡 Usage Examples
 
@@ -126,10 +141,11 @@ On first launch, GhostWriter will ask for:
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **API Key** | Your OpenRouter API key | Required |
+| **API Key** | Your API key (OpenRouter or OpenCode Zen) | Required |
 | **Instruction File** | Path to your `.md` prompt file | `~/ghost-instructions.md` |
-| **Model** | Preferred AI model | `openai/gpt-4` |
+| **Model** | Preferred AI model | `openai/gpt-4o-mini` |
 | **Hotkey** | Keyboard shortcut | `Cmd/Ctrl + Shift + R` |
+| **API Base URL** | Custom API endpoint for OpenAI-compatible providers | OpenRouter default |
 | **Proxy URL** | Optional proxy for API calls | None |
 
 ### Configuration File Template
@@ -149,6 +165,7 @@ Create the config file in the appropriate location for your OS:
     "key": "r"
   },
   "proxy_url": null,
+  "api_base_url": null,
   "first_run": false
 }
 ```
@@ -167,6 +184,7 @@ Create the config file in the appropriate location for your OS:
     "key": "r"
   },
   "proxy_url": null,
+  "api_base_url": null,
   "first_run": true
 }
 ```
@@ -185,6 +203,7 @@ Create the config file in the appropriate location for your OS:
     "key": "r"
   },
   "proxy_url": null,
+  "api_base_url": null,
   "first_run": false
 }
 ```
@@ -236,6 +255,7 @@ We welcome contributions from everyone. Please read our [Contributing Guide](CON
 - [Rust](https://www.rust-lang.org) — For performance and safety
 - [Tauri](https://tauri.app) — For the amazing cross-platform framework
 - [OpenRouter](https://openrouter.ai) — For unified AI model access
+- [OpenCode Zen](https://opencode.ai/docs/zen/) — For free AI model access (Big Pickle)
 
 ---
 
