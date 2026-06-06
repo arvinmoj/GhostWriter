@@ -4,17 +4,8 @@
 
 GhostWriter is a system-wide AI text refiner that works in any application. Once configured, simply select text and press your hotkey to transform it using AI.
 
-## Step 1: Get an API Key
+## Step 1: Get an OpenRouter API Key
 
-GhostWriter supports multiple AI providers. Choose the one that fits your needs:
-
-### Option A: OpenCode Zen (Free models available)
-1. Visit [https://opencode.ai/zen](https://opencode.ai/zen)
-2. Sign up and create an API key
-3. Recommended free model: **Big Pickle** (`big-pickle`), 200K context
-4. Set `api_base_url` to `https://opencode.ai/zen/v1/chat/completions` in your config
-
-### Option B: OpenRouter (200+ models, pay-per-use)
 1. Visit [https://openrouter.ai](https://openrouter.ai)
 2. Sign up for a free account
 3. Navigate to **Account → API Keys**
@@ -47,7 +38,6 @@ cat > ~/.config/ghostwriter/config.json << EOF
     "key": "r"
   },
   "proxy_url": null,
-  "api_base_url": null,
   "first_run": false
 }
 EOF
@@ -68,7 +58,6 @@ cat > ~/.config/ghostwriter/config.json << EOF
     "key": "r"
   },
   "proxy_url": null,
-  "api_base_url": null,
   "first_run": false
 }
 EOF
@@ -88,7 +77,6 @@ New-Item -ItemType Directory -Force -Path $configDir
     "key": "r"
   },
   "proxy_url": $null,
-  "api_base_url": $null,
   "first_run": $true
 }
 "@ | Set-Content -Path "$configDir\config.json" -Encoding UTF8
@@ -175,7 +163,7 @@ Examples:
 3. GhostWriter will:
    - Simulate `Cmd+A`/`Ctrl+A` (Select All)
    - Simulate `Cmd+C`/`Ctrl+C` (Copy)
-   - Send your text + instruction to the configured AI provider
+   - Send your text + instruction to OpenRouter AI
    - Wait for the AI response
    - Simulate `Cmd+V`/`Ctrl+V` (Paste) to replace original text
 4. The transformed text appears instantly!
@@ -211,9 +199,8 @@ Check these:
 5. Check the app logs: Run GhostWriter from Terminal to see output
 
 ### API Key Issues
-- Verify your API key is correct for the provider you're using
-- Check you have credits/balance in your provider account
-- If using a custom `api_base_url`, make sure it's set correctly (e.g., `https://opencode.ai/zen/v1/chat/completions`)
+- Verify your OpenRouter API key is correct
+- Check you have credits in your OpenRouter account
 - The key is stored encrypted in your config file:
   - **macOS**: `~/.config/ghostwriter/config.json`
   - **Linux**: `~/.config/ghostwriter/config.json`
@@ -229,11 +216,9 @@ Check these:
 
 - **Your API key stays local**: Encrypted and stored only on your machine
 - **No data collection**: GhostWriter doesn't track usage or collect analytics
-- **Provider choice**: Text is sent to the API provider you configure (OpenRouter or OpenCode Zen)
+- **OpenRouter only**: Text is sent only to OpenRouter (you control which models)
 - **No logging**: Your text and API key are never logged or stored beyond memory
 - **Open source**: Inspect the code at https://github.com/arvinmoj/GhostWriter
-
-> **Note**: Big Pickle's free tier on OpenCode Zen may use data for model improvement. Use OpenRouter or paid Zen models if this is a concern.
 
 ## File Locations
 
@@ -274,34 +259,17 @@ Create multiple `.md` files and switch between them by updating the `instruction
 Change the model in your config:
 ```json
 {
-  "model": "big-pickle"
+  "model": "anthropic/claude-3.5-sonnet"
 }
 ```
-For OpenCode Zen (set `api_base_url` to `https://opencode.ai/zen/v1/chat/completions`):
-- `big-pickle` — **Free**, 200K context, excellent coding agent
-- `deepseek-v4-flash-free` — Free model
-- `mimo-v2.5-free` — Free model
-- `nemotron-3-ultra-free` — Free model
-
-For OpenRouter (no `api_base_url` needed — uses default):
+Popular options:
 - `openai/gpt-4o` (most capable)
 - `openai/gpt-4o-mini` (fast & cheap, default)
-- `anthropic/claude-sonnet-4` (excellent for writing)
+- `anthropic/claude-3.5-sonnet` (excellent for writing)
 - `meta-llama/llama-3.1-70b-instruct` (open source option)
 
-### Custom API Base URL
-GhostWriter can connect to any OpenAI-compatible API endpoint. Set `api_base_url` in your config to override the default OpenRouter URL:
-
-```json
-{
-  "api_base_url": "https://opencode.ai/zen/v1/chat/completions"
-}
-```
-
-This enables using providers like OpenCode Zen with free models. Leave as `null` or omit to use the default OpenRouter endpoint.
-
 ### Proxy Configuration
-GhostWriter can route API requests (to any provider) through an HTTP or SOCKS proxy. Set the `proxy_url` field in your config:
+GhostWriter can route OpenRouter API requests through an HTTP or SOCKS proxy. Set the `proxy_url` field in your config:
 ```json
 {
   "proxy_url": "http://127.0.0.1:8080"
@@ -317,16 +285,13 @@ Omit or set to `null` to connect directly without a proxy.
 ## Frequently Asked Questions
 
 **Q: Does GhostWriter work offline?**
-A: No, it requires an internet connection to reach the configured AI provider's API.
+A: No, it requires an internet connection to reach the OpenRouter API.
 
 **Q: Is there a usage cost?**
-A: It depends on your provider. OpenRouter charges per-token based on the model. OpenCode Zen has free models (Big Pickle, DeepSeek V4 Flash Free) as well as paid options.
+A: Yes, you pay OpenRouter for API usage based on the model and tokens used. Check openrouter.ai for pricing.
 
 **Q: Can I use local models instead?**
-A: Not in this version - it requires an API connection to either OpenRouter or OpenCode Zen.
-
-**Q: What's Big Pickle?**
-A: Big Pickle is a free AI model available through OpenCode Zen. It has a 200K context window and is optimized for coding tasks. It's free for a limited time while the OpenCode team collects feedback.
+A: Not in this version - it requires an API connection to OpenRouter.
 
 **Q: What happens if I select a lot of text?**
 A: There's a practical limit based on the model's context window (typically 8K-32K tokens). Very large selections may be truncated.
