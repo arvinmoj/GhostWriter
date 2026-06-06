@@ -102,16 +102,9 @@ fn process_text() -> Result<(), String> {
 
     let model = settings.model.clone();
     let proxy_url = settings.proxy_url.clone();
-    let api_base_url = settings.api_base_url.clone();
 
     log::info!("[STEP 7] Creating API client...");
-    let client = match api_base_url {
-        Some(ref url) if !url.is_empty() => {
-            crate::api::OpenRouterClient::new_with_url(api_key, model, proxy_url, url.clone())
-        }
-        _ => crate::api::OpenRouterClient::new(api_key, model, proxy_url),
-    }
-    .map_err(|e| {
+    let client = crate::api::OpenRouterClient::new(api_key, model, proxy_url).map_err(|e| {
         log::error!("[STEP 7 FAIL] {}", e);
         format!("API client error: {}", e)
     })?;

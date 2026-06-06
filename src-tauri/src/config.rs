@@ -40,7 +40,6 @@ pub struct Settings {
     pub instruction_file: PathBuf,
     pub hotkey: HotkeyConfig,
     pub proxy_url: Option<String>,
-    pub api_base_url: Option<String>,
     pub first_run: bool,
 }
 
@@ -52,7 +51,6 @@ impl Default for Settings {
             instruction_file: default_instruction_path(),
             hotkey: HotkeyConfig::default(),
             proxy_url: None,
-            api_base_url: None,
             first_run: true,
         }
     }
@@ -217,12 +215,8 @@ impl std::fmt::Display for Settings {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Settings(model: {}, instruction: {:?}, api_base_url: {})",
-            self.model,
-            self.instruction_file,
-            self.api_base_url
-                .as_deref()
-                .unwrap_or("default(openrouter)")
+            "Settings(model: {}, instruction: {:?})",
+            self.model, self.instruction_file
         )
     }
 }
@@ -306,7 +300,6 @@ mod tests {
         assert!(s.api_key_encrypted.is_empty());
         assert_eq!(s.hotkey.key, "r");
         assert!(s.proxy_url.is_none());
-        assert!(s.api_base_url.is_none());
     }
 
     #[test]
@@ -330,7 +323,6 @@ mod tests {
                 key: "t".to_string(),
             },
             proxy_url: Some("http://proxy:8080".to_string()),
-            api_base_url: Some("https://opencode.ai/zen/v1/chat/completions".to_string()),
             first_run: false,
         };
 
@@ -343,7 +335,6 @@ mod tests {
         assert_eq!(deserialized.hotkey.key, s.hotkey.key);
         assert_eq!(deserialized.hotkey.modifiers, s.hotkey.modifiers);
         assert_eq!(deserialized.proxy_url, s.proxy_url);
-        assert_eq!(deserialized.api_base_url, s.api_base_url);
         assert_eq!(deserialized.first_run, s.first_run);
     }
 
@@ -367,7 +358,6 @@ mod tests {
             instruction_file: PathBuf::from("/tmp/test.md"),
             hotkey: HotkeyConfig::default(),
             proxy_url: None,
-            api_base_url: None,
             first_run: false,
         };
 
@@ -427,13 +417,11 @@ mod tests {
             instruction_file: PathBuf::from("/tmp/test.md"),
             hotkey: HotkeyConfig::default(),
             proxy_url: None,
-            api_base_url: None,
             first_run: false,
         };
 
         let display = s.to_string();
         assert!(display.contains("gpt-4"));
-        assert!(display.contains("default(openrouter)"));
         assert!(!display.contains("secret-key-value"));
     }
 
