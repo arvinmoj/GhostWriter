@@ -57,11 +57,22 @@ fn build_chat_request(model: &str, instruction: &str, text: &str) -> ChatRequest
     }
 }
 
+fn strip_thinking_tags(mut content: String) -> String {
+    while let Some(start) = content.find("<think>") {
+        if let Some(end) = content[start..].find("</think>") {
+            content.replace_range(start..start + end + 8, "");
+        } else {
+            content.replace_range(start..start + 7, "");
+        }
+    }
+    content.trim().to_string()
+}
+
 fn extract_response(text: &str) -> Result<String, String> {
     let chat_response: ChatResponse =
         serde_json::from_str(text).map_err(|e| format!("Parse error: {}", e))?;
     match chat_response.choices.into_iter().next() {
-        Some(choice) => Ok(choice.message.content),
+        Some(choice) => Ok(strip_thinking_tags(choice.message.content)),
         None => Err("No response from API".to_string()),
     }
 }
@@ -218,5 +229,37 @@ mod tests {
         let req1 = build_chat_request("gpt-4", "Fix grammar.", "hello");
         let req2 = build_chat_request("gpt-4", "Fix grammar.", "hello");
         assert_eq!(req1, req2);
+    }
+
+    #[test]
+    fn test_strip_thinking_tags_removes_full_tag() {
+        let result = strip_thinking_tags("<think>some reasoning</think>Hello".to_string());
+        assert_eq!(result, "Hello");
+    }
+
+    #[test]
+    fn test_strip_thinking_tags_no_tags() {
+        let result = strip_thinking_tags("Just a normal response".to_string());
+        assert_eq!(result, "Just a normal response");
+    }
+
+    #[test]
+    fn test_strip_thinking_tags_multiple() {
+        let result = strip_thinking_tags(
+            "<think>step 1</think>Answer<think>step 2</think> here".to_string(),
+        );
+        assert_eq!(result, "Answer here");
+    }
+
+    #[test]
+    fn test_strip_thinking_tags_unclosed() {
+        let result = strip_thinking_tags("<think>no close tag".to_string());
+        assert_eq!(result, "no close tag");
+    }
+
+    #[test]
+    fn test_strip_thinking_tags_with_whitespace() {
+        let result = strip_thinking_tags("  <think>reasoning</think>  Final output  ".to_string());
+        assert_eq!(result, "Final output");
     }
 }
