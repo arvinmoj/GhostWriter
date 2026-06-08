@@ -31,7 +31,6 @@ pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
                     if let Err(e) = process_text() {
                         log::error!("Text processing failed: {}", e);
                     }
-                    std::thread::sleep(std::time::Duration::from_secs(2));
                     PROCESSING.store(false, Ordering::SeqCst);
                 });
             }
