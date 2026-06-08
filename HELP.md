@@ -23,16 +23,7 @@ GhostWriter supports multiple AI providers. Choose the one that fits your needs:
 
 ## Step 2: Configure GhostWriter
 
-### Option A: Interactive Setup (Recommended)
-1. Launch GhostWriter (it will appear in your menu bar)
-2. Select any text in any application
-3. Press `Cmd+Shift+R` (macOS) / `Ctrl+Shift+R` (Windows/Linux)
-4. A prompt will appear asking for your API key
-5. Enter your key and press Enter
-6. The app will save it securely and restart
-
-### Option B: Manual Configuration
-Create the config file manually in the appropriate location for your operating system:
+Create the config file in the appropriate location for your operating system:
 
 #### macOS
 ```bash
@@ -44,7 +35,7 @@ cat > ~/.config/ghostwriter/config.json << EOF
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
-    "modifiers": ["cmd"],
+    "modifiers": ["cmd", "shift"],
     "key": "r"
   },
   "proxy_url": null,
@@ -64,7 +55,7 @@ cat > ~/.config/ghostwriter/config.json << EOF
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
-    "modifiers": ["ctrl"],
+    "modifiers": ["ctrl", "shift"],
     "key": "r"
   },
   "proxy_url": null,
@@ -88,14 +79,14 @@ New-Item -ItemType Directory -Force -Path $configDir
     "modifiers": ["ctrl"],
     "key": "r"
   },
-  "proxy_url": $null,
-  "api_base_url": $null,
-  "first_run": $true
+  "proxy_url": null,
+  "api_base_url": null,
+  "first_run": true
 }
 "@ | Set-Content -Path "$configDir\config.json" -Encoding UTF8
 ```
 
-Then restart GhostWriter. It will prompt for your API key on first launch, **or** you can set `"api_key"` to your raw key in the config file — GhostWriter will auto-encrypt it and clear the plain-text field on next startup.
+Then restart GhostWriter. You can set `"api_key"` to your raw key in the config file — GhostWriter will auto-encrypt it and clear the plain-text field on next startup.
 
 ## Step 3: Create Instruction Files
 

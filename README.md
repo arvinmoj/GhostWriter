@@ -63,7 +63,7 @@ chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage
 
 **Option 1 — OpenRouter** (GPT-4, Claude, Llama, etc.):
 1. **Get an API key** → [OpenRouter.ai](https://openrouter.ai) (one key for 200+ models)
-2. **Launch GhostWriter** → Configure your API key, instruction file path, and hotkey
+2. **Edit the config file** → Add your API key (see [Configuration](#configuration) below)
 3. **Go** → Highlight text anywhere and press your hotkey
 
 **Option 2 — OpenCode Zen** (Big Pickle is **free**):
@@ -142,7 +142,7 @@ On first launch, GhostWriter will ask for:
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **API Key (encrypted)** | Your encrypted API key (set automatically) | Auto-filled |
+| **API Key (encrypted)** | Your encrypted API key (set automatically from raw key) | Empty |
 | **API Key (raw)** | Plain-text API key — auto-encrypted on next launch | None |
 | **Instruction File** | Path to your `.md` prompt file | `~/ghost-instructions.md` |
 | **Model** | Preferred AI model | `openai/gpt-4o-mini` |
@@ -164,7 +164,7 @@ Create the config file in the appropriate location for your OS:
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
-    "modifiers": ["ctrl"],
+    "modifiers": ["ctrl", "shift"],
     "key": "r"
   },
   "proxy_url": null,
@@ -184,7 +184,7 @@ Create the config file in the appropriate location for your OS:
   "model": "openai/gpt-4o-mini",
   "instruction_file": "%APPDATA%\\ghostwriter\\instructions\\default.md",
   "hotkey": {
-    "modifiers": ["ctrl"],
+    "modifiers": ["ctrl", "shift"],
     "key": "r"
   },
   "proxy_url": null,
@@ -204,7 +204,7 @@ Create the config file in the appropriate location for your OS:
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
-    "modifiers": ["cmd"],
+    "modifiers": ["cmd", "shift"],
     "key": "r"
   },
   "proxy_url": null,
