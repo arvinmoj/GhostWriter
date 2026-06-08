@@ -3,6 +3,7 @@ use log;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
+use url::Url;
 
 const CONFIG_DIR: &str = "ghostwriter";
 const CONFIG_FILE: &str = "config.json";
@@ -142,8 +143,9 @@ pub(crate) fn load_settings_at(path: &Path) -> Result<Settings, ConfigError> {
     }
 
     let content = fs::read_to_string(path)?;
-    let settings: Settings =
+    let mut settings: Settings =
         serde_json::from_str(&content).map_err(|e| ConfigError::ParseError(e.to_string()))?;
+    validate_settings_urls(&mut settings);
     Ok(settings)
 }
 
@@ -158,6 +160,50 @@ pub(crate) fn save_settings_at(path: &Path, settings: &Settings) -> Result<(), C
         .map_err(|e| ConfigError::SerializeError(e.to_string()))?;
     fs::write(path, content)?;
     Ok(())
+}
+
+fn validate_settings_urls(settings: &mut Settings) {
+    if let Some(ref url_str) = settings.api_base_url.clone() {
+        match Url::parse(url_str) {
+            Ok(parsed) if matches!(parsed.scheme(), "http" | "https") => {}
+            Ok(parsed) => {
+                log::warn!(
+                    "api_base_url has unsupported scheme '{}', must be http or https — ignoring",
+                    parsed.scheme()
+                );
+                settings.api_base_url = None;
+            }
+            Err(e) => {
+                log::warn!(
+                    "api_base_url '{}' is not a valid URL: {} — ignoring",
+                    url_str,
+                    e
+                );
+                settings.api_base_url = None;
+            }
+        }
+    }
+
+    if let Some(ref url_str) = settings.proxy_url.clone() {
+        match Url::parse(url_str) {
+            Ok(parsed) if matches!(parsed.scheme(), "http" | "https" | "socks5") => {}
+            Ok(parsed) => {
+                log::warn!(
+                    "proxy_url has unsupported scheme '{}', must be http, https, or socks5 — ignoring",
+                    parsed.scheme()
+                );
+                settings.proxy_url = None;
+            }
+            Err(e) => {
+                log::warn!(
+                    "proxy_url '{}' is not a valid URL: {} — ignoring",
+                    url_str,
+                    e
+                );
+                settings.proxy_url = None;
+            }
+        }
+    }
 }
 
 pub fn encrypt_api_key(api_key: &str) -> Result<String, ConfigError> {
@@ -457,5 +503,130 @@ mod tests {
 
         let err = ConfigError::ParseError("bad json".to_string());
         assert_eq!(err.to_string(), "Parse error: bad json");
+    }
+
+    fn settings_with_urls(api_base_url: Option<&str>, proxy_url: Option<&str>) -> Settings {
+        Settings {
+            api_base_url: api_base_url.map(str::to_string),
+            proxy_url: proxy_url.map(str::to_string),
+            ..Settings::default()
+        }
+    }
+
+    #[test]
+    fn test_validate_urls_valid_http_base_url() {
+        let mut s = settings_with_urls(Some("http://custom.api/v1/chat"), None);
+        validate_settings_urls(&mut s);
+        assert_eq!(s.api_base_url.as_deref(), Some("http://custom.api/v1/chat"));
+    }
+
+    #[test]
+    fn test_validate_urls_valid_https_base_url() {
+        let mut s = settings_with_urls(Some("https://openrouter.ai/api/v1/chat/completions"), None);
+        validate_settings_urls(&mut s);
+        assert!(s.api_base_url.is_some());
+    }
+
+    #[test]
+    fn test_validate_urls_invalid_scheme_base_url() {
+        let mut s = settings_with_urls(Some("ftp://files.example.com/api"), None);
+        validate_settings_urls(&mut s);
+        assert!(s.api_base_url.is_none());
+    }
+
+    #[test]
+    fn test_validate_urls_socks5_rejected_for_base_url() {
+        let mut s = settings_with_urls(Some("socks5://proxy.example.com:1080"), None);
+        validate_settings_urls(&mut s);
+        assert!(s.api_base_url.is_none());
+    }
+
+    #[test]
+    fn test_validate_urls_malformed_base_url() {
+        let mut s = settings_with_urls(Some("not a url at all"), None);
+        validate_settings_urls(&mut s);
+        assert!(s.api_base_url.is_none());
+    }
+
+    #[test]
+    fn test_validate_urls_empty_string_base_url() {
+        let mut s = settings_with_urls(Some(""), None);
+        validate_settings_urls(&mut s);
+        assert!(s.api_base_url.is_none());
+    }
+
+    #[test]
+    fn test_validate_urls_valid_http_proxy() {
+        let mut s = settings_with_urls(None, Some("http://proxy.example.com:8080"));
+        validate_settings_urls(&mut s);
+        assert!(s.proxy_url.is_some());
+    }
+
+    #[test]
+    fn test_validate_urls_valid_https_proxy() {
+        let mut s = settings_with_urls(None, Some("https://proxy.example.com:8080"));
+        validate_settings_urls(&mut s);
+        assert!(s.proxy_url.is_some());
+    }
+
+    #[test]
+    fn test_validate_urls_valid_socks5_proxy() {
+        let mut s = settings_with_urls(None, Some("socks5://proxy.example.com:1080"));
+        validate_settings_urls(&mut s);
+        assert!(s.proxy_url.is_some());
+    }
+
+    #[test]
+    fn test_validate_urls_invalid_scheme_proxy() {
+        let mut s = settings_with_urls(None, Some("ftp://proxy.example.com"));
+        validate_settings_urls(&mut s);
+        assert!(s.proxy_url.is_none());
+    }
+
+    #[test]
+    fn test_validate_urls_malformed_proxy() {
+        let mut s = settings_with_urls(None, Some(":::bad:::"));
+        validate_settings_urls(&mut s);
+        assert!(s.proxy_url.is_none());
+    }
+
+    #[test]
+    fn test_validate_urls_none_fields_unchanged() {
+        let mut s = settings_with_urls(None, None);
+        validate_settings_urls(&mut s);
+        assert!(s.api_base_url.is_none());
+        assert!(s.proxy_url.is_none());
+    }
+
+    #[test]
+    fn test_load_settings_at_clears_invalid_base_url() {
+        let (_dir, path) = temp_config_path();
+        let bad = r#"{
+            "api_key_encrypted": "",
+            "model": "gpt-4",
+            "instruction_file": "/tmp/test.md",
+            "hotkey": {"modifiers": ["cmd"], "key": "r"},
+            "api_base_url": "ftp://bad.scheme/api",
+            "first_run": false
+        }"#;
+        fs::write(&path, bad).unwrap();
+        let loaded = load_settings_at(&path).unwrap();
+        assert!(loaded.api_base_url.is_none());
+    }
+
+    #[test]
+    fn test_load_settings_at_clears_invalid_proxy_url() {
+        let (_dir, path) = temp_config_path();
+        let bad = r#"{
+            "api_key_encrypted": "",
+            "model": "gpt-4",
+            "instruction_file": "/tmp/test.md",
+            "hotkey": {"modifiers": ["cmd"], "key": "r"},
+            "proxy_url": "not-a-url",
+            "first_run": false
+        }"#;
+        fs::write(&path, bad).unwrap();
+        let loaded = load_settings_at(&path).unwrap();
+        assert!(loaded.proxy_url.is_none());
     }
 }
