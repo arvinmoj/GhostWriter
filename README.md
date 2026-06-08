@@ -16,7 +16,7 @@
 - **Zero UI** — Pure keyboard shortcuts, no context switching
 - **Custom instructions** — Drop a `.md` file to define how AI transforms your text
 - **Multi-provider** — GPT-4, Claude, Llama via OpenRouter; Big Pickle (free) via OpenCode Zen
-- **Auto-encryption** — Drop a raw API key in config; GhostWriter encrypts it on first launch
+- **Auto-encryption** — Drop a raw API key in config; GhostWriter encrypts it on next startup
 - **Privacy-first** — Your API key stays encrypted locally, zero telemetry
 - **Lightweight** — Built with Tauri + Rust, minimal memory footprint
 
@@ -162,9 +162,9 @@ Create the config file in the appropriate location for your OS:
   "api_key_encrypted": "",
   "api_key": null,
   "model": "openai/gpt-4o-mini",
-  "instruction_file": "/Users/$(whoami)/.config/ghostwriter/instructions/default.md",
+  "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
-    "modifiers": ["cmd"],
+    "modifiers": ["ctrl"],
     "key": "r"
   },
   "proxy_url": null,

@@ -27,7 +27,7 @@ GhostWriter supports multiple AI providers. Choose the one that fits your needs:
 1. Launch GhostWriter (it will appear in your menu bar)
 2. Select any text in any application
 3. Press `Cmd+Shift+R` (macOS) / `Ctrl+Shift+R` (Windows/Linux)
-4. A prompt will appear asking for your OpenRouter API key
+4. A prompt will appear asking for your API key
 5. Enter your key and press Enter
 6. The app will save it securely and restart
 
@@ -62,9 +62,9 @@ cat > ~/.config/ghostwriter/config.json << EOF
   "api_key_encrypted": "",
   "api_key": null,
   "model": "openai/gpt-4o-mini",
-  "instruction_file": "/Users/$(whoami)/.config/ghostwriter/instructions/default.md",
+  "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
-    "modifiers": ["cmd"],
+    "modifiers": ["ctrl"],
     "key": "r"
   },
   "proxy_url": null,
@@ -109,11 +109,7 @@ GhostWriter automatically creates the default instruction file in your config di
 
 With content:
 ```
-You are a helpful AI assistant. Improve the user's text for clarity, grammar, and style while preserving the original meaning and tone. Focus on
-making the text more professional and polished without adding unnecessary
-information."
-```
-You are a helpful AI assistant. Improve the user's text for clarity, grammar, and style while preserving the original meaning and tone.
+You are a helpful AI assistant. Improve the user's text for clarity, grammar, and style while preserving the original meaning and tone. Focus on making the text more professional and polished without adding unnecessary information.
 ```
 
 ### Custom Instruction Examples
@@ -161,7 +157,7 @@ To use a custom instruction file, update your config with the appropriate path f
 ```
 Examples:
 - **macOS**: `"$HOME/.config/ghostwriter/instructions/grammar.md"`
-- **Linux**: `"/Users/yourname/.config/ghostwriter/instructions/grammar.md"`
+- **Linux**: `"/home/yourname/.config/ghostwriter/instructions/grammar.md"`
 - **Windows**: `"%APPDATA%\\ghostwriter\\instructions\\grammar.md"`
 
 ## Step 4: Using the Hotkey
@@ -174,8 +170,8 @@ Examples:
 1. Select text in any application (Notes, Word, Slack, IDE, browser, etc.)
 2. Press the hotkey
 3. GhostWriter will:
-   - Simulate `Cmd+A`/`Ctrl+A` (Select All)
-   - Simulate `Cmd+C`/`Ctrl+C` (Copy)
+   - Try `Cmd+C`/`Ctrl+C` to copy any existing selection
+   - If nothing is selected, fall back to `Cmd+A`/`Ctrl+A` (Select All) then `Cmd+C`/`Ctrl+C`
    - Send your text + instruction to the configured AI provider
    - Wait for the AI response
    - Simulate `Cmd+V`/`Ctrl+V` (Paste) to replace original text
