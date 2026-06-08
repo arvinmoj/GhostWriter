@@ -260,10 +260,7 @@ Check these:
 ## Advanced Usage
 
 ### Reloading Configuration
-GhostWriter automatically watches for changes to:
-- Config file
-- Instruction file
-No restart needed when you edit these files in their respective OS-specific locations.
+GhostWriter does **not** watch for file changes automatically. After editing the config file or switching instruction files, restart GhostWriter for the changes to take effect.
 
 ### Multiple Instruction Files
 Create multiple `.md` files and switch between them by updating the `instruction_file` path in your config.
