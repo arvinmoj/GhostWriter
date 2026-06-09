@@ -30,6 +30,7 @@ build/
 # IDE
 docs/
 .opencode/
+!.opencode/config.json
 .vscode/
 .idea/
 *.swp

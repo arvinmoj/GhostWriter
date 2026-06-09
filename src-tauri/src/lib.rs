@@ -69,7 +69,7 @@ pub fn run() {
                 }
             }
 
-            if let Err(e) = hotkey::init(app.handle()) {
+            if let Err(e) = hotkey::init(app.handle(), &_settings) {
                 log::error!("Failed to initialize hotkey: {}", e);
             }
 

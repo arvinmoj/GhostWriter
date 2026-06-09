@@ -5,17 +5,25 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 static PROCESSING: AtomicBool = AtomicBool::new(false);
 
 #[cfg(target_os = "macos")]
+#[allow(dead_code)]
 const DEFAULT_SHORTCUT: &str = "cmd+shift+r";
 
 #[cfg(target_os = "windows")]
+#[allow(dead_code)]
 const DEFAULT_SHORTCUT: &str = "ctrl+shift+r";
 
 #[cfg(target_os = "linux")]
+#[allow(dead_code)]
 const DEFAULT_SHORTCUT: &str = "ctrl+shift+r";
 
-pub fn init(app: &AppHandle) -> Result<(), String> {
-    register_hotkey(app, DEFAULT_SHORTCUT)?;
-    log::info!("Global hotkey registered: {}", DEFAULT_SHORTCUT);
+pub fn hotkey_config_to_shortcut(hotkey: &crate::config::HotkeyConfig) -> String {
+    format!("{}+{}", hotkey.modifiers.join("+"), hotkey.key)
+}
+
+pub fn init(app: &AppHandle, settings: &crate::config::Settings) -> Result<(), String> {
+    let shortcut = hotkey_config_to_shortcut(&settings.hotkey);
+    register_hotkey(app, &shortcut)?;
+    log::info!("Global hotkey registered: {}", shortcut);
     Ok(())
 }
 
@@ -315,32 +323,54 @@ fn simulate_paste() -> Result<(), String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config::HotkeyConfig;
 
     #[test]
-    fn test_default_shortcut_not_empty() {
-        assert!(!DEFAULT_SHORTCUT.is_empty());
-    }
-
-    #[test]
-    fn test_default_shortcut_contains_plus() {
-        assert!(DEFAULT_SHORTCUT.contains('+'));
-    }
-
-    #[test]
-    fn test_default_shortcut_has_modifier_and_key() {
-        let parts: Vec<&str> = DEFAULT_SHORTCUT.split('+').collect();
+    fn test_default_hotkey_produces_correct_shortcut() {
+        let h = HotkeyConfig::default();
+        let shortcut = hotkey_config_to_shortcut(&h);
+        assert!(!shortcut.is_empty());
+        assert!(shortcut.contains('+'));
+        let parts: Vec<&str> = shortcut.split('+').collect();
         assert!(parts.len() >= 2);
         assert_eq!(parts[parts.len() - 1], "r");
         #[cfg(target_os = "macos")]
         {
             assert_eq!(parts[0], "cmd");
-            assert_eq!(parts[1], "shift");
         }
         #[cfg(not(target_os = "macos"))]
         {
             assert_eq!(parts[0], "ctrl");
-            assert_eq!(parts[1], "shift");
         }
+    }
+
+    #[test]
+    fn test_single_modifier_shortcut() {
+        let h = HotkeyConfig {
+            modifiers: vec!["alt".to_string()],
+            key: "F4".to_string(),
+        };
+        assert_eq!(hotkey_config_to_shortcut(&h), "alt+F4");
+    }
+
+    #[test]
+    fn test_multiple_modifiers_shortcut() {
+        let h = HotkeyConfig {
+            modifiers: vec!["ctrl".to_string(), "shift".to_string(), "alt".to_string()],
+            key: "x".to_string(),
+        };
+        assert_eq!(hotkey_config_to_shortcut(&h), "ctrl+shift+alt+x");
+    }
+
+    #[test]
+    fn test_shortcut_key_is_last_segment() {
+        let h = HotkeyConfig {
+            modifiers: vec!["cmd".to_string(), "option".to_string()],
+            key: "escape".to_string(),
+        };
+        let shortcut = hotkey_config_to_shortcut(&h);
+        let parts: Vec<&str> = shortcut.split('+').collect();
+        assert_eq!(parts.last().unwrap(), &"escape");
     }
 
     #[test]
