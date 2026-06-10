@@ -20,6 +20,47 @@ pub fn hotkey_config_to_shortcut(hotkey: &crate::config::HotkeyConfig) -> String
     format!("{}+{}", hotkey.modifiers.join("+"), hotkey.key)
 }
 
+const RESTORE_PASTE_DELAY_MS: u64 = 150;
+
+struct ClipboardGuard {
+    saved: String,
+    paste_dispatched: bool,
+}
+
+impl ClipboardGuard {
+    fn new(saved: String) -> Self {
+        Self {
+            saved,
+            paste_dispatched: false,
+        }
+    }
+
+    fn mark_paste_dispatched(&mut self) {
+        self.paste_dispatched = true;
+    }
+}
+
+impl Drop for ClipboardGuard {
+    fn drop(&mut self) {
+        let (sleep, write) = cleanup_plan(self.saved.is_empty(), self.paste_dispatched);
+        if sleep {
+            std::thread::sleep(std::time::Duration::from_millis(RESTORE_PASTE_DELAY_MS));
+        }
+        if !write {
+            log::info!("[STEP 11] Skipped restore: no prior clipboard content");
+            return;
+        }
+        match crate::clipboard::write_clipboard(&self.saved) {
+            Ok(()) => log::info!("[STEP 11] Clipboard restored ({} chars)", self.saved.len()),
+            Err(e) => log::warn!("[STEP 11] Failed to restore clipboard (non-fatal): {}", e),
+        }
+    }
+}
+
+fn cleanup_plan(saved_empty: bool, paste_dispatched: bool) -> (bool, bool) {
+    (paste_dispatched, !saved_empty)
+}
+
 pub fn init(app: &AppHandle, settings: &crate::config::Settings) -> Result<(), String> {
     let shortcut = hotkey_config_to_shortcut(&settings.hotkey);
     register_hotkey(app, &shortcut)?;
@@ -59,6 +100,9 @@ fn process_text(_app: &AppHandle) -> Result<(), String> {
         "[STEP 1a] Saved clipboard ({} chars)",
         saved_clipboard.len()
     );
+
+    // Arm cleanup guard — restores clipboard on every exit path after this point
+    let mut guard = ClipboardGuard::new(saved_clipboard.clone());
 
     // Try to copy only the current selection (Cmd+C without Cmd+A)
     simulate_only_copy()?;
@@ -161,6 +205,7 @@ fn process_text(_app: &AppHandle) -> Result<(), String> {
         log::error!("[STEP 10 FAIL] {}", e);
         e
     })?;
+    guard.mark_paste_dispatched();
     log::info!("[STEP 10] Paste simulated");
 
     log::info!("Text replacement complete");
@@ -389,5 +434,47 @@ mod tests {
     fn test_simulate_only_copy_is_callable() {
         let result = simulate_only_copy();
         assert!(result.is_ok() || result.is_err());
+    }
+
+    #[test]
+    fn cleanup_plan_empty_no_paste_is_noop() {
+        assert_eq!(cleanup_plan(true, false), (false, false));
+    }
+
+    #[test]
+    fn cleanup_plan_empty_with_paste_sleeps_but_skips_write() {
+        assert_eq!(cleanup_plan(true, true), (true, false));
+    }
+
+    #[test]
+    fn cleanup_plan_nonempty_no_paste_restores_immediately() {
+        assert_eq!(cleanup_plan(false, false), (false, true));
+    }
+
+    #[test]
+    fn cleanup_plan_nonempty_with_paste_restores_after_sleep() {
+        assert_eq!(cleanup_plan(false, true), (true, true));
+    }
+
+    #[test]
+    fn clipboard_guard_new_starts_with_paste_not_dispatched() {
+        let guard = ClipboardGuard::new(String::new());
+        assert!(!guard.paste_dispatched);
+        assert_eq!(guard.saved, "");
+    }
+
+    #[test]
+    fn clipboard_guard_mark_paste_dispatched_flips_flag() {
+        let mut guard = ClipboardGuard::new(String::new());
+        assert!(!guard.paste_dispatched);
+        guard.mark_paste_dispatched();
+        assert!(guard.paste_dispatched);
+    }
+
+    #[test]
+    fn clipboard_guard_drop_with_empty_saved_does_not_panic() {
+        // Empty saved → write branch is skipped → no clipboard contact → safe in any env
+        let guard = ClipboardGuard::new(String::new());
+        drop(guard);
     }
 }
