@@ -33,11 +33,13 @@ pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
         .map_err(|e| format!("Failed to parse shortcut: {}", e))?;
 
     app.global_shortcut()
-        .on_shortcut(parsed, move |_app, _shortcut, event| {
+        .on_shortcut(parsed, move |app, _shortcut, event| {
             if event.state == ShortcutState::Pressed && !PROCESSING.swap(true, Ordering::SeqCst) {
+                let app = app.clone();
                 std::thread::spawn(move || {
-                    if let Err(e) = process_text() {
-                        log::error!("Text processing failed: {}", e);
+                    if let Err(e) = process_text(&app) {
+                        let (title, body) = crate::notify::classify(&e);
+                        crate::notify::error(&app, title, &body);
                     }
                     PROCESSING.store(false, Ordering::SeqCst);
                 });
@@ -48,7 +50,7 @@ pub fn register_hotkey(app: &AppHandle, shortcut: &str) -> Result<(), String> {
     Ok(())
 }
 
-fn process_text() -> Result<(), String> {
+fn process_text(_app: &AppHandle) -> Result<(), String> {
     log::info!("[STEP 1] Hotkey triggered, starting text capture");
 
     // Save current clipboard content
@@ -100,10 +102,15 @@ fn process_text() -> Result<(), String> {
         .unwrap_or_else(|_| crate::instructions::default_instruction());
     log::info!("[STEP 5] Instruction loaded ({} chars)", instruction.len());
 
+    if settings.api_key_encrypted.is_empty() {
+        log::error!("[STEP 6 FAIL] API key missing");
+        return Err("API key missing".to_string());
+    }
+
     log::info!("[STEP 6] Decrypting API key...");
     let api_key = crate::config::decrypt_api_key(&settings.api_key_encrypted).map_err(|e| {
         log::error!("[STEP 6 FAIL] {}", e);
-        format!("Config error: {}", e)
+        format!("Failed to decrypt API key: {}", e)
     })?;
     log::info!("[STEP 6] API key decrypted");
 
