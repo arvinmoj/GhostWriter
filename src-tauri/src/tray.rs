@@ -4,6 +4,7 @@ use tauri::{
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     App, Manager,
 };
+use tauri_plugin_opener::OpenerExt;
 
 #[cfg(test)]
 mod tests {
@@ -40,6 +41,27 @@ pub fn create_tray(app: &App) -> Result<(), Box<dyn std::error::Error>> {
             }
             "about" => {
                 log::info!("About clicked");
+                let app = app.clone();
+                std::thread::spawn(move || {
+                    use tauri_plugin_dialog::DialogExt;
+                    let body = crate::about::dialog_body();
+                    let result = app
+                        .dialog()
+                        .message(&body)
+                        .title(crate::about::DIALOG_TITLE)
+                        .kind(tauri_plugin_dialog::MessageDialogKind::Info)
+                        .buttons(tauri_plugin_dialog::MessageDialogButtons::OkCancelCustom(
+                            crate::about::OPEN_REPO_BUTTON.to_string(),
+                            crate::about::OK_BUTTON.to_string(),
+                        ))
+                        .blocking_show();
+                    if result {
+                        if let Err(e) = app.opener().open_url(crate::about::REPO_URL, None::<&str>)
+                        {
+                            log::warn!("Failed to open repo URL: {}", e);
+                        }
+                    }
+                });
             }
             _ => {}
         })
