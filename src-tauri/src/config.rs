@@ -34,6 +34,15 @@ impl Default for HotkeyConfig {
     }
 }
 
+#[derive(Debug, Default, Serialize, Deserialize, Clone, PartialEq)]
+pub enum Provider {
+    #[default]
+    #[serde(rename = "openrouter")]
+    OpenRouter,
+    #[serde(rename = "google")]
+    Google,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Settings {
     #[serde(default)]
@@ -45,6 +54,8 @@ pub struct Settings {
     pub proxy_url: Option<String>,
     pub api_base_url: Option<String>,
     pub first_run: bool,
+    #[serde(default)]
+    pub provider: Provider,
 }
 
 impl Default for Settings {
@@ -58,6 +69,7 @@ impl Default for Settings {
             proxy_url: None,
             api_base_url: None,
             first_run: true,
+            provider: Provider::default(),
         }
     }
 }
@@ -266,12 +278,13 @@ impl std::fmt::Display for Settings {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Settings(model: {}, instruction: {:?}, api_base_url: {}, has_raw_key: {})",
+            "Settings(provider: {:?}, model: {}, instruction: {:?}, api_base_url: {}, has_raw_key: {})",
+            self.provider,
             self.model,
             self.instruction_file,
             self.api_base_url
                 .as_deref()
-                .unwrap_or("default(openrouter)"),
+                .unwrap_or("default"),
             self.api_key.is_some()
         )
     }
@@ -384,6 +397,7 @@ mod tests {
             proxy_url: Some("http://proxy:8080".to_string()),
             api_base_url: Some("https://opencode.ai/zen/v1/chat/completions".to_string()),
             first_run: false,
+            provider: Provider::OpenRouter,
         };
 
         let json = serde_json::to_string_pretty(&s).unwrap();
@@ -398,6 +412,7 @@ mod tests {
         assert_eq!(deserialized.proxy_url, s.proxy_url);
         assert_eq!(deserialized.api_base_url, s.api_base_url);
         assert_eq!(deserialized.first_run, s.first_run);
+        assert_eq!(deserialized.provider, Provider::OpenRouter);
     }
 
     #[test]
@@ -423,6 +438,7 @@ mod tests {
             proxy_url: None,
             api_base_url: None,
             first_run: false,
+            provider: Provider::OpenRouter,
         };
 
         save_settings_at(&path, &settings).unwrap();
@@ -484,11 +500,12 @@ mod tests {
             proxy_url: None,
             api_base_url: None,
             first_run: false,
+            provider: Provider::OpenRouter,
         };
 
         let display = s.to_string();
         assert!(display.contains("gpt-4"));
-        assert!(display.contains("default(openrouter)"));
+        assert!(display.contains("default"));
         assert!(display.contains("has_raw_key: false"));
         assert!(!display.contains("secret-key-value"));
     }
@@ -628,5 +645,55 @@ mod tests {
         fs::write(&path, bad).unwrap();
         let loaded = load_settings_at(&path).unwrap();
         assert!(loaded.proxy_url.is_none());
+    }
+
+    #[test]
+    fn test_provider_default_is_openrouter() {
+        assert_eq!(Provider::default(), Provider::OpenRouter);
+    }
+
+    #[test]
+    fn test_provider_serde_roundtrip() {
+        let json = r#""openrouter""#;
+        let p: Provider = serde_json::from_str(json).unwrap();
+        assert_eq!(p, Provider::OpenRouter);
+
+        let json = r#""google""#;
+        let p: Provider = serde_json::from_str(json).unwrap();
+        assert_eq!(p, Provider::Google);
+    }
+
+    #[test]
+    fn test_old_config_without_provider_defaults_to_openrouter() {
+        let (_dir, path) = temp_config_path();
+        let old_json = r#"{
+            "api_key_encrypted": "",
+            "model": "gpt-4",
+            "instruction_file": "/tmp/test.md",
+            "hotkey": {"modifiers": ["cmd"], "key": "r"},
+            "first_run": false
+        }"#;
+        fs::write(&path, old_json).unwrap();
+        let loaded = load_settings_at(&path).unwrap();
+        assert_eq!(loaded.provider, Provider::OpenRouter);
+    }
+
+    #[test]
+    fn test_provider_google_config_loads_correctly() {
+        let (_dir, path) = temp_config_path();
+        let json = r#"{
+            "api_key_encrypted": "enc_key",
+            "model": "gemini-2.0-flash",
+            "instruction_file": "/tmp/test.md",
+            "hotkey": {"modifiers": ["cmd"], "key": "r"},
+            "proxy_url": null,
+            "api_base_url": null,
+            "first_run": false,
+            "provider": "google"
+        }"#;
+        fs::write(&path, json).unwrap();
+        let loaded = load_settings_at(&path).unwrap();
+        assert_eq!(loaded.provider, Provider::Google);
+        assert_eq!(loaded.model, "gemini-2.0-flash");
     }
 }

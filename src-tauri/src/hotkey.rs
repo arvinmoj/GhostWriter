@@ -162,17 +162,36 @@ fn process_text(_app: &AppHandle) -> Result<(), String> {
     let proxy_url = settings.proxy_url.clone();
     let api_base_url = settings.api_base_url.clone();
 
-    log::info!("[STEP 7] Creating API client...");
-    let client = match api_base_url {
-        Some(ref url) if !url.is_empty() => {
-            crate::api::OpenRouterClient::new_with_url(api_key, model, proxy_url, url.clone())
+    log::info!(
+        "[STEP 7] Creating API client (provider: {:?}, model: {})...",
+        settings.provider,
+        model
+    );
+    let client = match settings.provider {
+        crate::config::Provider::OpenRouter => {
+            let c = match api_base_url {
+                Some(ref url) if !url.is_empty() => crate::api::OpenRouterClient::new_with_url(
+                    api_key,
+                    model,
+                    proxy_url,
+                    url.clone(),
+                ),
+                _ => crate::api::OpenRouterClient::new(api_key, model, proxy_url),
+            }
+            .map_err(|e| {
+                log::error!("[STEP 7 FAIL] {}", e);
+                format!("API client error: {}", e)
+            })?;
+            crate::api::ApiClient::OpenRouter(c)
         }
-        _ => crate::api::OpenRouterClient::new(api_key, model, proxy_url),
-    }
-    .map_err(|e| {
-        log::error!("[STEP 7 FAIL] {}", e);
-        format!("API client error: {}", e)
-    })?;
+        crate::config::Provider::Google => {
+            let c = crate::api::GeminiClient::new(api_key, model, proxy_url).map_err(|e| {
+                log::error!("[STEP 7 FAIL] {}", e);
+                format!("API client error: {}", e)
+            })?;
+            crate::api::ApiClient::Google(c)
+        }
+    };
     log::info!("[STEP 7] API client created");
 
     log::info!("[STEP 8] Calling LLM API...");
