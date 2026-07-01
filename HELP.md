@@ -21,6 +21,12 @@ GhostWriter supports multiple AI providers. Choose the one that fits your needs:
 4. Create a new API key (it will start with `sk-or-...`)
 5. Copy the key - you'll need it for the next step
 
+### Option C: Google Gemini Direct (free tier available)
+1. Visit [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. Create a free API key
+3. Set `provider: "google"` and `model: "gemini-2.5-flash"` in your config
+4. No `api_base_url` needed — connects directly to Google's API
+
 ## Step 2: Configure GhostWriter
 
 Create the config file in the appropriate location for your operating system:
@@ -32,6 +38,7 @@ cat > ~/.config/ghostwriter/config.json << EOF
 {
   "api_key_encrypted": "",
   "api_key": null,
+  "provider": "openrouter",
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
@@ -52,6 +59,7 @@ cat > ~/.config/ghostwriter/config.json << EOF
 {
   "api_key_encrypted": "",
   "api_key": null,
+  "provider": "openrouter",
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
@@ -73,6 +81,7 @@ New-Item -ItemType Directory -Force -Path $configDir
 {
   "api_key_encrypted": "",
   "api_key": null,
+  "provider": "openrouter",
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$env:APPDATA\ghostwriter\instructions\default.md",
   "hotkey": {
@@ -218,7 +227,7 @@ Check these:
 
 - **Your API key stays local**: Encrypted and stored only on your machine
 - **No data collection**: GhostWriter doesn't track usage or collect analytics
-- **Provider choice**: Text is sent to the API provider you configure (OpenRouter or OpenCode Zen)
+- **Provider choice**: Text is sent to the API provider you configure (OpenRouter, Google Gemini, or OpenCode Zen)
 - **No logging**: Your text and API key are never logged or stored beyond memory
 - **Open source**: Inspect the code at https://github.com/arvinmoj/GhostWriter
 
@@ -269,6 +278,11 @@ For OpenCode Zen (set `api_base_url` to `https://opencode.ai/zen/v1/chat/complet
 - `mimo-v2.5-free` — Free model
 - `nemotron-3-ultra-free` — Free model
 
+For Google Gemini (set `provider: "google"`, no `api_base_url` needed):
+- `gemini-2.5-flash` — Fast, free tier (10-15 RPM)
+- `gemini-2.5-pro` — Most capable Google model
+- `gemini-2.0-flash-lite` — Ultra-cheap (deprecated, may return 429)
+
 For OpenRouter (no `api_base_url` needed — uses default):
 - `openai/gpt-4o` (most capable)
 - `openai/gpt-4o-mini` (fast & cheap, default)
@@ -306,10 +320,10 @@ Omit or set to `null` to connect directly without a proxy.
 A: No, it requires an internet connection to reach the configured AI provider's API.
 
 **Q: Is there a usage cost?**
-A: It depends on your provider. OpenRouter charges per-token based on the model. OpenCode Zen has free models (Big Pickle, DeepSeek V4 Flash Free) as well as paid options.
+A: It depends on your provider. OpenRouter charges per-token based on the model. Google Gemini has a free tier with rate limits (~10-15 RPM). OpenCode Zen has free models (Big Pickle, DeepSeek V4 Flash Free) as well as paid options.
 
 **Q: Can I use local models instead?**
-A: Not in this version - it requires an API connection to either OpenRouter or OpenCode Zen.
+A: Not in this version - it requires an API connection to OpenRouter, Google Gemini, or OpenCode Zen.
 
 **Q: What's Big Pickle?**
 A: Big Pickle is a free AI model available through OpenCode Zen. It has a 200K context window and is optimized for coding tasks. It's free for a limited time while the OpenCode team collects feedback.

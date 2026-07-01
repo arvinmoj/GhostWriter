@@ -15,7 +15,7 @@
 - **System-wide** — Works in every app: email, code editors, chat, documents
 - **Zero UI** — Pure keyboard shortcuts, no context switching
 - **Custom instructions** — Drop a `.md` file to define how AI transforms your text
-- **Multi-provider** — GPT-4, Claude, Llama via OpenRouter; Big Pickle (free) via OpenCode Zen
+- **Multi-provider** — GPT-4, Claude, Llama via OpenRouter; Google Gemini directly; Big Pickle (free) via OpenCode Zen
 - **Auto-encryption** — Drop a raw API key in config; GhostWriter encrypts it on next startup
 - **Privacy-first** — Your API key stays encrypted locally, zero telemetry
 - **Lightweight** — Built with Tauri + Rust, minimal memory footprint
@@ -71,6 +71,11 @@ chmod +x GhostWriter-*.AppImage && ./GhostWriter-*.AppImage
 2. **Configure** — set `api_base_url` and `model` in your config (see Configuration section)
 3. **Launch GhostWriter** and start transforming text instantly — no API costs
 
+**Option 3 — Google Gemini Direct** (free tier available):
+1. **Get an API key** → [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. **Configure** — set `provider: "google"` and `model: "gemini-2.5-flash"` in your config
+3. **Go** — no base URL needed, works directly with Google's API
+
 Create an instruction file `~/ghost-instructions.md`:
 ```markdown
 Fix grammar and spelling mistakes. Improve clarity. Keep the original tone.
@@ -110,6 +115,12 @@ Your instruction file is a plain Markdown (`.md`) file that tells the AI **how**
 - Meta: Llama 3, 4
 - And many more...
 
+**Google Gemini Direct** — Use Gemini models without a third-party hub:
+- Gemini 2.5 Flash — Fast, free tier (10-15 RPM)
+- Gemini 2.5 Pro — Most capable Google model
+- Gemini 2.0 Flash-Lite — Ultra-cheap (deprecated Mar 2026)
+- No `api_base_url` needed — uses Google's native API
+
 **OpenCode Zen** — Curated provider with free models:
 - [Big Pickle](https://opencode.ai/docs/zen/) — **Free** (limited time), 200K context
 - DeepSeek V4 Flash Free — Free
@@ -144,6 +155,7 @@ On first launch, GhostWriter will ask for:
 |---------|-------------|---------|
 | **API Key (encrypted)** | Your encrypted API key (set automatically from raw key) | Empty |
 | **API Key (raw)** | Plain-text API key — auto-encrypted on next launch | None |
+| **Provider** | AI provider: `"openrouter"` or `"google"` | `"openrouter"` |
 | **Instruction File** | Path to your `.md` prompt file | `~/ghost-instructions.md` |
 | **Model** | Preferred AI model | `openai/gpt-4o-mini` |
 | **Hotkey** | Keyboard shortcut | `Cmd/Ctrl + Shift + R` |
@@ -161,6 +173,7 @@ Create the config file in the appropriate location for your OS:
 {
   "api_key_encrypted": "",
   "api_key": null,
+  "provider": "openrouter",
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
@@ -182,6 +195,8 @@ Create the config file in the appropriate location for your OS:
   "api_key_encrypted": "",
   "api_key": null,
   "model": "openai/gpt-4o-mini",
+  "provider": "openrouter",
+  "model": "openai/gpt-4o-mini",
   "instruction_file": "%APPDATA%\\ghostwriter\\instructions\\default.md",
   "hotkey": {
     "modifiers": ["ctrl", "shift"],
@@ -201,6 +216,7 @@ Create the config file in the appropriate location for your OS:
 {
   "api_key_encrypted": "",
   "api_key": null,
+  "provider": "openrouter",
   "model": "openai/gpt-4o-mini",
   "instruction_file": "$HOME/.config/ghostwriter/instructions/default.md",
   "hotkey": {
@@ -260,6 +276,7 @@ We welcome contributions from everyone. Please read our [Contributing Guide](CON
 - [Rust](https://www.rust-lang.org) — For performance and safety
 - [Tauri](https://tauri.app) — For the amazing cross-platform framework
 - [OpenRouter](https://openrouter.ai) — For unified AI model access
+- [Google Gemini](https://ai.google.dev) — For direct Gemini API access
 - [OpenCode Zen](https://opencode.ai/docs/zen/) — For free AI model access (Big Pickle)
 
 ---
